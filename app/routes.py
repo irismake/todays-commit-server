@@ -3,6 +3,10 @@ from .models import Zone
 
 zone_bp = Blueprint("zone", __name__)
 
+@zone_bp.route("/test")
+def test():
+    return "<h1>Hello from Flask!</h1>", 200
+
 @zone_bp.route("/")
 def home():
     return "✅ Flask 서버가 작동 중입니다!"
