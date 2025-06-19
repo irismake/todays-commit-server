@@ -1,5 +1,5 @@
 # ARM 호환 Python 3.11 기반 슬림 이미지
-FROM arm64v8/python:3.11-slim
+FROM python:3.11-slim
 
 # 필수 패키지 설치
 RUN apt-get update && apt-get install -y \
@@ -13,7 +13,9 @@ WORKDIR /app
 
 # 의존성 파일 복사 및 설치
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip wheel && \
+    pip install numpy pandas --prefer-binary && \
+    pip install -r requirements.txt
 
 # 프로젝트 전체 복사
 COPY . .
