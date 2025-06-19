@@ -5,3 +5,4 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 typing_extensions==4.14.0
 Werkzeug==3.0.1
+MarkupSafe==2.1.5
