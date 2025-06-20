@@ -5,6 +5,6 @@ services:
     build: .
     container_name: my-ggg-server
     ports:
-      - "7000:5000"
+      - "5000:5000"
     volumes:
       - .:/app
