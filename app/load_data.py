@@ -15,12 +15,12 @@ def load_csv():
 
     for i, row in df.iterrows():
         try:
-            pnus = ast.literal_eval(row["pnus"])  # 문자열 "[123, 456]" → 리스트 [123, 456]
+            sub_zone_codes = ast.literal_eval(row["pnus"])  # 문자열 "[123, 456]" → 리스트 [123, 456]
             zone = Zone(
                 x=int(row["x"]),
                 y=int(row["y"]),
                 zone_code=int(row["zone_code"]),
-                pnus=[int(p) for p in pnus]
+                sub_zone_codes=[int(p) for p in sub_zone_codes]
             )
             db.session.add(zone)
             print(f"Added row {i}: ({zone.x}, {zone.y})")
