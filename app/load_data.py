@@ -7,7 +7,7 @@ from app.models import Zone
 def load_csv():
     # korea.csv 파일 경로 설정
     base_dir = os.path.abspath(os.path.dirname(__file__))
-    csv_path = os.path.join(base_dir, "..", "korea.csv")
+    csv_path = os.path.join(base_dir, "..", "../instance/korea.csv")
 
     # CSV 읽기
     df = pd.read_csv(csv_path)
