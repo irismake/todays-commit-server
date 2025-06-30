@@ -1,38 +1,46 @@
-CREATE TABLE "user" (
-  "user_id" INTEGER PRIMARY KEY,
-  "user_name" TEXT NOT NULL,
-  "created_at" TIMESTAMP NOT NULL
-);
+PRAGMA foreign_keys = ON;
 
-CREATE TABLE "grass" (
-  "user_id" INTEGER NOT NULL,
-  "map_id" INTEGER NOT NULL,
-  "commit_count" INTEGER NOT NULL,
-  PRIMARY KEY ("user_id", "map_id"),
-  FOREIGN KEY ("user_id") REFERENCES "user" ("user_id"),
-  FOREIGN KEY ("map_id") REFERENCES "map" ("map_id")
+CREATE TABLE "user" (
+  user_id INTEGER NOT NULL,
+  user_name TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  PRIMARY KEY (user_id)
 );
 
 CREATE TABLE "map" (
-  "map_id" INTEGER PRIMARY KEY,
-  "map_code" INTEGER NOT NULL,
-  "zone_code" INTEGER NOT NULL,
-  "x" INTEGER NOT NULL,
-  "y" INTEGER NOT NULL
+  map_id INTEGER NOT NULL,
+  map_code INTEGER NOT NULL,
+  zone_code INTEGER NOT NULL,
+  x INTEGER NOT NULL,
+  y INTEGER NOT NULL,
+  PRIMARY KEY (map_id)
+);
+
+CREATE TABLE "place" (
+  pnu INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  PRIMARY KEY (pnu)
 );
 
 CREATE TABLE "commit" (
-  "id" INTEGER NOT NULL,
-  "map_id" INTEGER NOT NULL,
-  "user_id" INTEGER NOT NULL,
-  "created_at" TIMESTAMP NOT NULL,
-  PRIMARY KEY ("id", "map_id", "user_id"),
-  FOREIGN KEY ("map_id") REFERENCES "map" ("map_id"),
-  FOREIGN KEY ("user_id") REFERENCES "user" ("user_id")
+  commit_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  map_id INTEGER NOT NULL,
+  pnu2 INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL,
+  PRIMARY KEY (commit_id, user_id, map_id, pnu2),
+  FOREIGN KEY (user_id) REFERENCES "user"(user_id),
+  FOREIGN KEY (map_id) REFERENCES "map"(map_id),
+  FOREIGN KEY (pnu2) REFERENCES "place"(pnu)
 );
 
-CREATE TABLE "subzone" (
-  "map_id" INTEGER PRIMARY KEY,
-  "sub_zone_code" INTEGER NOT NULL,
-  FOREIGN KEY ("map_id") REFERENCES "map" ("map_id")
-);
+CREATE VIEW grass_view AS
+SELECT
+  m.map_id,
+  m.map_code,
+  m.x,
+  m.y,
+  COUNT(c.commit_id) AS commit_count
+FROM map m
+LEFT JOIN "commit" c ON m.map_id = c.map_id
+GROUP BY m.map_id, m.map_code, m.x, m.y;
