@@ -22,13 +22,13 @@ CREATE TABLE "place" (
   PRIMARY KEY (pnu)
 );
 
-CREATE TABLE "commit" (
-  commit_id INTEGER NOT NULL,
+CREATE TABLE "grass" (
+  grass_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   map_id INTEGER NOT NULL,
   pnu2 INTEGER NOT NULL,
   created_at TIMESTAMP NOT NULL,
-  PRIMARY KEY (commit_id, user_id, map_id, pnu2),
+  PRIMARY KEY (grass_id, user_id, map_id, pnu2),
   FOREIGN KEY (user_id) REFERENCES "user"(user_id),
   FOREIGN KEY (map_id) REFERENCES "map"(map_id),
   FOREIGN KEY (pnu2) REFERENCES "place"(pnu)
@@ -40,7 +40,7 @@ SELECT
   m.map_code,
   m.x,
   m.y,
-  COUNT(c.commit_id) AS commit_count
+  COUNT(c.grass_id) AS grass_count
 FROM map m
-LEFT JOIN "commit" c ON m.map_id = c.map_id
+LEFT JOIN "grass" c ON m.map_id = c.map_id
 GROUP BY m.map_id, m.map_code, m.x, m.y;
