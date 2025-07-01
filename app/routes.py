@@ -19,6 +19,6 @@ def get_zone(x, y):
             "x": zone.x,
             "y": zone.y,
             "zone_code": zone.zone_code,
-            "pnus": zone.pnus
+            "sub_zone_codes": zone.sub_zone_codes
         })
     return jsonify({"error": "Not found"}), 404

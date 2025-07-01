@@ -16,4 +16,4 @@ class Zone(db.Model):
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
     zone_code = db.Column(db.Integer)
-    pnus = db.Column(IntListType)
+    sub_zone_codes = db.Column(IntListType)
