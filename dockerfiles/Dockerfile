@@ -22,4 +22,4 @@ RUN pip install --upgrade pip && \
 COPY . .
 
 # 서버 실행
-CMD ["python", "app.py"]
+CMD ["python", "src/ggg/app.py"]

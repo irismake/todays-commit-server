@@ -1,12 +1,30 @@
-version: "3.9"
+version: "3.8"
 
 services:
   web:
     build:
-      context: .     
+      context: .
       dockerfile: dockerfiles/Dockerfile
     container_name: ggg-server
     ports:
       - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PYTHONPATH=/app/src
+    depends_on:
+      - postgres
     volumes:
-      - .:/app
+      - ./src:/app/src
+
+  postgres:
+    image: postgres:15.4
+    container_name: ggg_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
