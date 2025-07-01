@@ -1,8 +1,8 @@
 import os
 import ast
 import pandas as pd
-from app import db, create_app
-from app.models import Zone
+from ggg import db, create_app
+from ggg.models import Zone
 
 def load_csv():
     # korea.csv 파일 경로 설정
