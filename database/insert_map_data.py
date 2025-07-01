@@ -1,6 +1,7 @@
 import sqlite3
 import csv
 import os
+import ast
 
 # 경로 설정
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -12,6 +13,7 @@ conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 map_id_counter = 1
+subzone_inserts = []
 
 # 디렉토리 내 모든 CSV 파일 순회
 for filename in os.listdir(instance_dir):
@@ -32,12 +34,32 @@ for filename in os.listdir(instance_dir):
                 y = int(row["y"])
                 zone_code = int(row["zone_code"])
 
+                # map 테이블에 삽입
                 cursor.execute(
                     "INSERT INTO map (map_id, map_code, zone_code, x, y) VALUES (?, ?, ?, ?, ?)",
                     (map_id_counter, map_code, zone_code, x, y)
                 )
+
+                # sub_zone_codes 파싱해서 subzone 테이블용 데이터 준비
+                raw = row.get("sub_zone_codes", "").strip()
+                if raw:
+                    try:
+                        codes = ast.literal_eval(raw)
+                        if isinstance(codes, list):
+                            for code in codes:
+                                subzone_inserts.append((int(code), map_id_counter))
+                    except Exception as e:
+                        print(f"⚠️ sub_zone_codes 파싱 실패: {raw} → {e}")
+
                 map_id_counter += 1
+
+# subzone 테이블에 삽입 (중복 제거)
+subzone_inserts = list(set(subzone_inserts))
+cursor.executemany(
+    "INSERT OR IGNORE INTO subzone (sub_zone_code, map_id) VALUES (?, ?)",
+    subzone_inserts
+)
 
 conn.commit()
 conn.close()
-print("✅ 모든 CSV 삽입 완료")
+print("✅ 모든 CSV를 map & subzone 테이블에 삽입 완료")
