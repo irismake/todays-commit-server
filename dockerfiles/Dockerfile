@@ -1,5 +1,5 @@
 # ARM 호환 Python 3.11 기반 슬림 이미지
-FROM python:3.11-slim
+FROM --platform=linux/arm64 python:3.11-slim
 
 # 필수 패키지 설치
 RUN apt-get update && apt-get install -y \
