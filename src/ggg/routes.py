@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from .models import Zone
+from .models import User
 
 zone_bp = Blueprint("zone", __name__)
 
@@ -11,14 +11,13 @@ def test():
 def home():
     return "✅ Flask 서버가 작동 중입니다!"
 
-@zone_bp.route("/coord/<int:x>/<int:y>")
-def get_zone(x, y):
-    zone = Zone.query.filter_by(x=x, y=y).first()
-    if zone:
+@zone_bp.route("/user/<int:user_id>")
+def get_user(user_id):
+    user = User.query.get(user_id)
+    if user:
         return jsonify({
-            "x": zone.x,
-            "y": zone.y,
-            "zone_code": zone.zone_code,
-            "sub_zone_codes": zone.sub_zone_codes
+            "user_id": user.user_id,
+            "user_name": user.user_name,
+            "created_at": user.created_at.isoformat()
         })
     return jsonify({"error": "Not found"}), 404
