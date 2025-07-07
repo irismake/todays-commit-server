@@ -28,7 +28,12 @@ CREATE TABLE unit (
 CREATE TABLE "user" (
     user_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_name VARCHAR(255) NOT NULL,
+    provider VARCHAR(20) NOT NULL,
+    provider_id VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+    UNIQUE (provider, provider_id)
 );
 
 -- 5. 장소 정보 (PNU 기준 단일 공간 단위)
@@ -44,7 +49,6 @@ CREATE TABLE "commit" (
     pnu BIGINT NOT NULL,
     user_id SMALLINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_private BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (pnu) REFERENCES place(pnu) ON DELETE NO ACTION ON UPDATE NO ACTION,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
