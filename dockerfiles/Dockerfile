@@ -1,15 +1,19 @@
-# ARM 호환 Python 3.11 기반 슬림 이미지
-FROM --platform=linux/arm64 python:3.11-slim
+# ARM 호환 Python 3.11 + Alpine
+FROM --platform=linux/arm64 python:3.11-alpine
 
-# 필수 패키지 설치
-RUN apt-get update && apt-get install -y \
+# 시스템 패키지 설치
+RUN apk update && apk add --no-cache \
     gcc \
-    python3-numpy \
-    python3-pandas \
-    libopenblas-dev \
-    libpq-dev \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    musl-dev \
+    libffi-dev \
+    openblas-dev \
+    lapack-dev \
+    python3-dev \
+    py3-numpy \
+    py3-pandas \
+    postgresql-dev \
+    libpq \
+    build-base
 
 # 작업 디렉토리 설정
 WORKDIR /app
