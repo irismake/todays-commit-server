@@ -1,17 +1,13 @@
-from flask import Blueprint, jsonify
-from ggg.models import db
-from sqlalchemy import text
+from fastapi import APIRouter
 
-health_bp = Blueprint("health", __name__, url_prefix="/healthz")
+router = APIRouter(
+    prefix="/healthz",
+    tags=["healthz"],
+    dependencies=[],
+    responses={404: {"description": "Not found"}},
+)
 
-@health_bp.route("", methods=["GET"])
-def health_check():
-    try:
-        db.session.execute(text("SELECT 1"))
-        return jsonify({"ok": True}), 200
-    except Exception as e:
-        return jsonify({"error": "DB 연결 실패", "message": str(e)}), 500
 
-@health_bp.route("/test")
-def test():
-    return "<h1>Test ggg server!</h1>", 200
+@router.get("")
+async def health_check():
+    return {"ok": True}
