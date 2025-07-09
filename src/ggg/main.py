@@ -1,8 +1,12 @@
-import os
 import logging
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from starlette.responses import HTMLResponse
+
+from sqlalchemy import inspect
+from sqlalchemy.orm import Session
+
+from ggg.database.connection import engine, SessionLocal
 
 from ggg.routers import healthz 
 # # 필요한 라우터들을 여기에 import 예: from ggg.routers import users, posts 등
@@ -35,6 +39,12 @@ async def home():
         '<a href="/docs">API 문서</a><br>'
     )
     return HTMLResponse(html)
+
+@app.get("/test")
+async def test_db():
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    return {"tables": tables}
 
 # 개발용 실행 진입점
 if __name__ == "__main__":
