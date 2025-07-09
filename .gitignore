@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 instance/
 postgres-data/
+envs/
 .env

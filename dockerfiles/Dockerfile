@@ -26,4 +26,4 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 
 # 서버 실행
-CMD ["uvicorn", "src.ggg.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "ggg.main:app", "--host", "0.0.0.0", "--port", "5000"]
