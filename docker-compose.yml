@@ -9,11 +9,6 @@ services:
     restart: always
     ports:
       - "5000:5000"
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
     depends_on:
       - postgres
     volumes:
@@ -25,6 +20,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "${DB_PORT}:${DB_PORT}"
     volumes:
