@@ -8,15 +8,15 @@ class Grass(GggBase):
 
     grass_id = Column(BigInteger, primary_key=True, autoincrement=True)
     commit_id = Column(BigInteger, ForeignKey("commit.commit_id"), nullable=False)
-    cell_id = Column(SmallInteger, nullable=False)
+    coord_id = Column(SmallInteger, nullable=False)
     map_id = Column(SmallInteger, nullable=False)
 
     __table_args__ = (
         ForeignKeyConstraint(
-            ["cell_id", "map_id"],
-            ["cell.cell_id", "cell.map_id"]
+            ["coord_id", "map_id"],
+            ["cell.coord_id", "cell.map_id"]
         ),
-        Index("idx_grass_cell", "cell_id", "map_id"),
+        Index("idx_grass_cell", "coord_id", "map_id"),
     )
 
 class Commit(GggBase):

@@ -8,17 +8,16 @@ class MapBase(GggBaseModel):
     map_code: Optional[int] = None
 
 class CellBase(GggBaseModel):
-    cell_id: int
+    coord_id: int
     map_id: int
     zone_code: Optional[int] = None
-    x: int
-    y: int
 
 class CoordBase(GggBaseModel):
+    coord_id: int
     x: int
     y: int
 
 class UnitBase(GggBaseModel):
     unit_code: int
-    cell_id: int
+    coord_id: int
     map_id: int

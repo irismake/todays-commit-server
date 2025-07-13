@@ -6,7 +6,7 @@ from ggg.schemas.base import GggBaseModel
 class GrassBase(GggBaseModel):
     grass_id: int
     commit_id: int
-    cell_id: int
+    coord_id: int
     map_id: int
 
 class CommitBase(GggBaseModel):

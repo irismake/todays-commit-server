@@ -1,5 +1,5 @@
 from ggg.models.base import GggBase
-from sqlalchemy import Column, ForeignKey, Integer, SmallInteger, BigInteger, Index, ForeignKeyConstraint
+from sqlalchemy import Column, PrimaryKeyConstraint, Integer, SmallInteger, BigInteger, Index, ForeignKeyConstraint
 
 
 class Map(GggBase):
@@ -12,34 +12,35 @@ class Map(GggBase):
 class Coord(GggBase):
     __tablename__ = "coord"
 
-    x = Column(SmallInteger, primary_key=True)
-    y = Column(SmallInteger, primary_key=True)
-
-class Cell(GggBase):
-    __tablename__ = "cell"
-    
-    cell_id = Column(SmallInteger, primary_key=True)
-    map_id = Column(SmallInteger, ForeignKey("map.map_id"), primary_key=True)
-
-    zone_code = Column(Integer)
+    coord_id = Column(SmallInteger, primary_key=True)
     x = Column(SmallInteger)
     y = Column(SmallInteger)
 
+
+class Cell(GggBase):
+    __tablename__ = "cell"
+
+    coord_id = Column(SmallInteger, nullable=False)
+    map_id = Column(SmallInteger, nullable=False)
+    zone_code = Column(Integer)
+
     __table_args__ = (
-        ForeignKeyConstraint(["x", "y"], ["coord.x", "coord.y"]),
+        PrimaryKeyConstraint("coord_id", "map_id"),
+        ForeignKeyConstraint(["coord_id"], ["coord.coord_id"]),
+        ForeignKeyConstraint(["map_id"], ["map.map_id"]),
     )
 
 class Unit(GggBase):
     __tablename__ = "unit"
 
     unit_code = Column(BigInteger, primary_key=True)
-    cell_id = Column(SmallInteger, nullable=False)
+    coord_id = Column(SmallInteger, nullable=False)
     map_id = Column(SmallInteger, nullable=False)
 
     __table_args__ = (
         ForeignKeyConstraint(
-            ["cell_id", "map_id"],
-            ["cell.cell_id", "cell.map_id"]
+            ["coord_id", "map_id"],
+            ["cell.coord_id", "cell.map_id"]
         ),
-        Index("idx_unit_cell", "cell_id", "map_id"),
+        Index("idx_unit_cell", "coord_id", "map_id"),
     )
