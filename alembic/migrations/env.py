@@ -11,6 +11,11 @@ env = os.getenv("ENV", "local")
 env_path = f"envs/.{env}"
 load_dotenv(dotenv_path=env_path)
 
+load_dotenv(dotenv_path=env_path, override=True)
+
+print("⚙️ ENV =", env)
+print("📄 LOADING:", env_path)
+print("🌍 DB_HOST:", os.getenv("DB_HOST"))
 
 config = context.config
 
