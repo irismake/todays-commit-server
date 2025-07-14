@@ -1,0 +1,19 @@
+# 일반적인 무시 대상
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+.env.*
+
+# Git 관련
+.git
+.gitignore
+
+# IDE 관련
+.vscode/
+.idea/
+
+# Docker 빌드에 포함되면 안 되는 것들
+postgres-data/
