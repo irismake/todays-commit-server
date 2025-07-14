@@ -22,8 +22,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# 프로젝트 전체 복사
-COPY . .
+# alembic config 복사
+COPY ../alembic.ini .
+COPY ../alembic ./alembic
+COPY ../src ./src
 
 # 서버 실행
-CMD ["uvicorn", "ggg.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn ggg.main:app --host 0.0.0.0 --port 5000"]
