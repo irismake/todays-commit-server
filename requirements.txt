@@ -5,6 +5,7 @@ uvicorn[standard]==0.29.0
 # DB 연동
 SQLAlchemy==2.0.41
 psycopg2-binary==2.9.9
+alembic==1.12.1
 
 # FastAPI 의존성
 itsdangerous==2.1.2

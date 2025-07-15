@@ -11,13 +11,11 @@ services:
       - "5000:5000"
     env_file:
       - .env
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
     depends_on:
       - postgres
     volumes:
-      - ./src:/app
+      - ./src:/app/src
+      - ./alembic:/app/alembic
 
   postgres:
     image: postgres:15.4
@@ -25,6 +23,10 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "${DB_PORT}:${DB_PORT}"
     volumes:
