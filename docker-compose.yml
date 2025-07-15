@@ -14,9 +14,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./src:/app
+      - ./src:/app/src
       - ./alembic:/app/alembic
-      - ./alembic.ini:/app/alembic.ini
 
   postgres:
     image: postgres:15.4
