@@ -34,8 +34,8 @@ class Cell(GggBase):
 
     @classmethod
     def get_cells(cls, db: Session, map_id: int) -> List[int]:
-        rows = db.query(cls.cell_id).filter(cls.map_id == map_id).all()
-        return [row.cell_id for row in rows]
+        rows = db.query(cls.coord_id).filter(cls.map_id == map_id).all()
+        return [row.coord_id for row in rows]
 
 class Unit(GggBase):
     __tablename__ = "unit"

@@ -22,13 +22,13 @@ async def get( map_id: int,db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Map not found")
 
     # 2. 셀 조회 → 클래스메서드 활용
-    cell_ids = Cell.get_cells(db, map_id)
+    coord_ids = Cell.get_cells(db, map_id)
 
-    if not cell_ids:
+    if not coord_ids:
         raise HTTPException(status_code=404, detail="No cells found for map")
 
     # 3. 응답 모델 구성
     return MapResponse(
         map_code=map_obj.map_code,
-        cell_ids=cell_ids
+        coord_ids=coord_ids
     )

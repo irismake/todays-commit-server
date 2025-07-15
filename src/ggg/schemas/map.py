@@ -12,7 +12,7 @@ class MapBase(GggBaseModel):
 
 class MapResponse(BaseModel):
     map_code: int
-    cell_ids: List[int]
+    coord_ids: List[int]
 
 class CellBase(GggBaseModel):
     coord_id: int
