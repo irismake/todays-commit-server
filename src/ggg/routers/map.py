@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ggg.database import get_db
-from ggg.models import Map
-from ggg.models import Cell
-from ggg.schemas.map import MapResponse
+from ggg.models import Map, Cell, Unit
+
+from ggg.schemas.map import MapResponse, CellResponse, CellData
 
 router = APIRouter(
     prefix="/map",
@@ -12,6 +12,35 @@ router = APIRouter(
     dependencies=[],
     responses={404: {"description": "Not found"}},
 )
+
+@router.get("/cell", response_model=CellResponse)
+async def get(pnu: int = Query(...), db: Session = Depends(get_db)):
+    pnu_str = str(pnu).zfill(19)
+    result_maps = []
+
+    levels = [
+        (2, int(pnu_str)),
+        (1, int(pnu_str[:8])),
+        (0, int(pnu_str[:5]))
+    ]
+
+    for level, unit_code in levels:
+        unit = db.query(Unit).filter(Unit.unit_code == unit_code).first()
+        if unit:
+            result_maps.append(
+                CellData(
+                    map_level=level,
+                    map_id=unit.map_id,
+                    coord_id=unit.coord_id
+                )
+            )
+
+    if not result_maps:
+        raise HTTPException(status_code=404, detail="No mapping found for given PNU")
+
+    return CellResponse(pnu=pnu, maps=result_maps)
+
+
 
 @router.get("/{map_id}", response_model=MapResponse)
 async def get(map_id: int, db: Session = Depends(get_db)):

@@ -24,7 +24,7 @@ class Cell(GggBase):
 
     coord_id = Column(SmallInteger, nullable=False)
     map_id = Column(SmallInteger, nullable=False)
-    zone_code = Column(Integer)
+    zone_code = Column(Integer, nullable=False)
 
     __table_args__ = (
         PrimaryKeyConstraint("coord_id", "map_id"),
