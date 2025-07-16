@@ -1,6 +1,6 @@
 from sqlalchemy import Column, PrimaryKeyConstraint, Integer, SmallInteger, BigInteger, Index, ForeignKeyConstraint
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Tuple
 
 from ggg.models.base import GggBase
 
@@ -24,7 +24,7 @@ class Cell(GggBase):
 
     coord_id = Column(SmallInteger, nullable=False)
     map_id = Column(SmallInteger, nullable=False)
-    zone_code = Column(Integer)
+    zone_code = Column(Integer, nullable=False)
 
     __table_args__ = (
         PrimaryKeyConstraint("coord_id", "map_id"),
@@ -33,9 +33,9 @@ class Cell(GggBase):
     )
 
     @classmethod
-    def get_cells(cls, db: Session, map_id: int) -> List[int]:
-        rows = db.query(cls.coord_id).filter(cls.map_id == map_id).all()
-        return [row.coord_id for row in rows]
+    def get_cells(cls, db: Session, map_id: int) -> List[Tuple[int, int]]:
+        rows = db.query(cls.coord_id, cls.zone_code).filter(cls.map_id == map_id).all()
+        return rows
 
 class Unit(GggBase):
     __tablename__ = "unit"
