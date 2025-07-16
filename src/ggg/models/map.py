@@ -1,6 +1,8 @@
-from ggg.models.base import GggBase
 from sqlalchemy import Column, PrimaryKeyConstraint, Integer, SmallInteger, BigInteger, Index, ForeignKeyConstraint
+from sqlalchemy.orm import Session
+from typing import List
 
+from ggg.models.base import GggBase
 
 class Map(GggBase):
     __tablename__ = "map"
@@ -29,6 +31,11 @@ class Cell(GggBase):
         ForeignKeyConstraint(["coord_id"], ["coord.coord_id"]),
         ForeignKeyConstraint(["map_id"], ["map.map_id"]),
     )
+
+    @classmethod
+    def get_cells(cls, db: Session, map_id: int) -> List[int]:
+        rows = db.query(cls.coord_id).filter(cls.map_id == map_id).all()
+        return [row.coord_id for row in rows]
 
 class Unit(GggBase):
     __tablename__ = "unit"

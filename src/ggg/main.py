@@ -6,14 +6,19 @@ from starlette.responses import HTMLResponse
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
+from ggg.database import initialize_db
 from ggg.database.connection import engine, SessionLocal
 
-from ggg.routers import healthz 
+from ggg.routers import healthz, map
 # # 필요한 라우터들을 여기에 import 예: from ggg.routers import users, posts 등
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def on_startup():
+    initialize_db()
 
 # # 환경 변수에서 ORIGIN 설정
 # origin = os.getenv("ORIGIN", "http://127.0.0.1:5173")
@@ -30,6 +35,7 @@ app = FastAPI()
 
 # 라우터 등록
 app.include_router(healthz.router)
+app.include_router(map.router)
 # app.include_router(users.router) 등 필요한 것 추가
 
 # 홈 라우트
