@@ -14,21 +14,24 @@ router = APIRouter(
 )
 
 @router.get("/{map_id}", response_model=MapResponse)
-async def get( map_id: int,db: Session = Depends(get_db)):
-
+async def get(map_id: int, db: Session = Depends(get_db)):
     # 1. map_code 조회
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
     if not map_obj:
         raise HTTPException(status_code=404, detail="Map not found")
 
-    # 2. 셀 조회 → 클래스메서드 활용
-    coord_ids = Cell.get_cells(db, map_id)
+    # 2. 셀 조회 (coord_id, zone_code)
+    cell_rows = (
+        db.query(Cell.coord_id, Cell.zone_code)
+        .filter(Cell.map_id == map_id)
+        .all()
+    )
 
-    if not coord_ids:
+    if not cell_rows:
         raise HTTPException(status_code=404, detail="No cells found for map")
 
-    # 3. 응답 모델 구성
+    # 3. 응답 구성
     return MapResponse(
         map_code=map_obj.map_code,
-        coord_ids=coord_ids
+        map_data=[{"coord_id": row.coord_id, "zone_code": row.zone_code} for row in cell_rows]
     )

@@ -4,6 +4,20 @@ from typing import List
 
 from ggg.schemas.base import GggBaseModel
 
+class UnitBase(GggBaseModel):
+    unit_code: int
+    coord_id: int
+    map_id: int
+
+class CellBase(GggBaseModel):
+    coord_id: int
+    map_id: int
+    zone_code: Optional[int] = None
+
+class CellData(BaseModel):
+    coord_id: int
+    zone_code: int
+
 class MapBase(GggBaseModel):
     map_id: int
     map_level: Optional[int] = None
@@ -12,19 +26,10 @@ class MapBase(GggBaseModel):
 
 class MapResponse(BaseModel):
     map_code: int
-    coord_ids: List[int]
+    map_data: List[CellData]
 
-class CellBase(GggBaseModel):
-    coord_id: int
-    map_id: int
-    zone_code: Optional[int] = None
 
 class CoordBase(GggBaseModel):
     coord_id: int
     x: int
     y: int
-
-class UnitBase(GggBaseModel):
-    unit_code: int
-    coord_id: int
-    map_id: int
