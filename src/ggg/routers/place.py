@@ -54,9 +54,8 @@ async def get_places(
     commits = db.query(Commit.pnu, Commit.created_at).filter(
         Commit.commit_id.in_(commit_ids)
     ).all()
-
     if not commits:
-        return PlaceResponse(places=[])
+        raise HTTPException(status_code=404, detail="No commit details found for those commit_ids")
 
     # 3. pnu → commit_count, 최근 시간
     pnu_stats: Dict[int, Dict] = {}
@@ -69,6 +68,8 @@ async def get_places(
 
     # 4. place 테이블에서 정보 가져오기
     places = db.query(Place).filter(Place.pnu.in_(pnu_stats.keys())).all()
+    if not places:
+        raise HTTPException(status_code=404, detail="No place information found for the given PNUs")
 
     result = []
     for place in places:
@@ -87,9 +88,7 @@ async def get_places(
     else:
         result.sort(key=lambda x: pnu_stats[x.pnu]["latest"], reverse=True)
 
-    return PlaceResponse(
-        places=result[:limit]
-    )
+    return PlaceResponse(places=result[:limit])
 
 @router.get("/{pnu}", response_model=PlaceDetailResponse)
 async def get_place_detail(pnu: int, db: Session = Depends(get_db)

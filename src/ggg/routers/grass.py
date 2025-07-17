@@ -23,6 +23,9 @@ async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
         .all()
     )
 
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"No grass data found for map_id {map_id}")
+
     grass_data = [
         GrassData(coord_id=row.coord_id, commit_count=row.commit_count)
         for row in rows
