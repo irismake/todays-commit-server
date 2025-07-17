@@ -1,11 +1,18 @@
 from pydantic import BaseModel, field_serializer
 from typing import List
 from ggg.schemas.base import GggBaseModel
+from ggg.schemas.grass import CommitData
 
 class PlaceBase(GggBaseModel):
     pnu: int
     name: str
     address: str
+    x: float
+    y: float
+
+    @field_serializer("pnu")
+    def serialize_pnu(self, pnu: int, _info):
+        return str(pnu)
 
 class PlaceData(BaseModel):
     pnu: int
@@ -19,3 +26,6 @@ class PlaceData(BaseModel):
 
 class PlaceResponse(BaseModel):
     places: List[PlaceData]
+
+class PlaceDetailResponse(PlaceBase):
+    commits: List[CommitData]

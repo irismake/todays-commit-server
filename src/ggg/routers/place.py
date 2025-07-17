@@ -5,8 +5,10 @@ from enum import Enum
 from math import radians, cos, sin, asin, sqrt
 
 from ggg.database import get_db
-from ggg.models import Place, Grass, Commit
-from ggg.schemas.place import PlaceData, PlaceResponse
+from ggg.models import Place, Grass, Commit, User
+from ggg.schemas.place import PlaceData, PlaceResponse, PlaceDetailResponse
+from ggg.schemas.grass import CommitData
+
 
 router = APIRouter(
     prefix="/place",
@@ -87,4 +89,33 @@ async def get_places(
 
     return PlaceResponse(
         places=result[:limit]
+    )
+
+@router.get("/{pnu}", response_model=PlaceDetailResponse)
+async def get_place_detail(pnu: int, db: Session = Depends(get_db)
+):
+    place = db.query(Place).filter(Place.pnu == pnu).first()
+    if not place:
+        raise HTTPException(status_code=404, detail="Place not found")
+
+    rows = (
+        db.query(User.user_name.label("user_name"), Commit.created_at)
+        .join(User, User.user_id == Commit.user_id)
+        .filter(Commit.pnu == pnu)
+        .order_by(Commit.created_at.desc())
+        .all()
+    )
+
+    commit_data = [
+        CommitData(user_name=row.user_name, created_at=row.created_at)
+        for row in rows
+    ]
+
+    return PlaceDetailResponse(
+        pnu=place.pnu,
+        name=place.name,
+        address=place.address,
+        x=place.x,
+        y=place.y,
+        commits= commit_data
     )

@@ -24,3 +24,7 @@ class CommitBase(GggBaseModel):
     pnu: int
     user_id: int
     created_at: datetime
+
+class CommitData(BaseModel):
+    user_name: str
+    created_at: datetime
