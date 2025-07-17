@@ -9,6 +9,9 @@ dc-down-v2:
 	docker compose -f docker-compose.yml down --rmi all
 
 # 🗄️ 데이터베이스 제어
+db-access:
+	docker compose exec postgres psql -U postgres -d ggg_db
+
 db-create:
 	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database ggg"
 

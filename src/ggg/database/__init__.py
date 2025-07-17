@@ -2,19 +2,96 @@ import glob
 import os
 import csv
 import ast
+import json
 
 from .connection import SessionLocal
-from ggg.models import Coord, Map, Cell, Unit
+from ggg.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place
+
+def insert_mock_data(db):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DATA_DIR = os.path.join(BASE_DIR, "data")
+    json_path = os.path.join(DATA_DIR, "mock_data.json")
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        user_data = data["users"]
+        commit_data = data["commits"]
+        grass_data = data["grass"]
+        place_data = data["places"]
+
+        # Place 테이블 삽입
+        place_objs = [
+            Place(
+                pnu= item["pnu"],
+                name= item["name"],
+                address= item["address"],
+                x= item["x"],
+                y= item["y"],
+            )
+            for item in place_data
+        ]
+        db.add_all(place_objs)
+        db.commit()
+
+         # User 테이블 삽입
+        user_objs = [
+            User(
+                user_id= item["user_id"],
+                user_name = item["user_name"],
+                email = item["email"],
+                provider= item["provider"],
+                provider_id= item["provider_id"],
+                created_at= item["created_at"],
+            )
+            for item in user_data
+        ]
+        db.add_all(user_objs)
+        db.commit()
+
+        # Commit 테이블 삽입
+        commit_objs = [
+            Commit(
+                commit_id=item["commit_id"],
+                pnu=item["pnu"],
+                user_id=item["user_id"],
+                created_at=item["created_at"]
+            )
+            for item in commit_data
+        ]
+        db.add_all(commit_objs)
+        db.commit()
+
+        # Grass 테이블 삽입
+        grass_objs = [
+            Grass(
+                grass_id=item["grass_id"],
+                commit_id=item["commit_id"],
+                coord_id=item["coord_id"],
+                map_id=item["map_id"]
+            )
+            for item in grass_data
+        ]
+        db.add_all(grass_objs)
+        db.commit()
+        print("✅ mock data 삽입 완료", flush=True)
+    except Exception as e:
+        db.rollback()
+        print(f"❌ mock data 삽입 실패: {e}", flush=True)
 
 
 def insert_coord(db):
     try:
-        for x in range(25):
-            for y in range(25):
-                db.add(Coord(x=x, y=y))
+        coord_id = 0
+        for y in range(25):
+            for x in range(25):
+                db.add(Coord(coord_id=coord_id, x=x, y=y))
+                coord_id += 1
         db.commit()
         print("✅ coord 좌표 삽입 완료", flush=True)
     except Exception as e:
+        db.rollback()
         print("❌ coord 삽입 실패:", e, flush=True)
 
 
@@ -123,7 +200,7 @@ def insert_csv(db):
 
 def initialize_db():
     db = SessionLocal()
-    reset_cell_table(db)
+    reset_table(db)
     try:
         if not db.query(Coord).first():
             print("🚀 insert_coord 실행", flush=True)
@@ -139,18 +216,28 @@ def initialize_db():
             print("🚀 insert_csv 실행", flush=True)
             insert_csv(db)
         else:
-            print("✅ Cell & Unit 데이터 있음")
+            print("✅ Cell & Unit 데이터 있음",  flush=True)
+        if not db.query(Commit).first():
+            print("🚀 insert_mock_data 실행", flush=True)
+            insert_mock_data(db)
+        else:
+            print("✅ Mock 데이터 있음",  flush=True)
     finally:
         db.close()
 
 
-def reset_cell_table(db):
+def reset_table(db):
     try:
-        deleted = db.query(Unit).delete()
-        deleted = db.query(Cell).delete()
-        deleted = db.query(Map).delete()
+        db.query(Grass).delete()
+        db.query(Commit).delete()
+        db.query(Unit).delete()
+        db.query(Cell).delete()
+        db.query(Map).delete()
+        db.query(User).delete()
+        db.query(Place).delete()
+        db.query(Coord).delete()
         db.commit()
-        print(f"🧹 테이블 초기화 완료 ({deleted}개 삭제됨)")
+        print(f"🧹 테이블 초기화 완료",  flush=True)
     except Exception as e:
         db.rollback()
         print(f"❌ 테이블 초기화 실패: {e}")

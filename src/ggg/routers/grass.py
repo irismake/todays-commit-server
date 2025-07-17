@@ -15,13 +15,16 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=GrassResponse)
-async def get(map_id: int = Query(...), db: Session = Depends(get_db)):
+async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
     rows = (
         db.query(Grass.coord_id, func.count().label("commit_count"))
         .filter(Grass.map_id == map_id)
         .group_by(Grass.coord_id)
         .all()
     )
+
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"No grass data found for map_id {map_id}")
 
     grass_data = [
         GrassData(coord_id=row.coord_id, commit_count=row.commit_count)

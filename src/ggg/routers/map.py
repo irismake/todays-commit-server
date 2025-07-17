@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 @router.get("/cell", response_model=CellResponse)
-async def get(pnu: int = Query(...), db: Session = Depends(get_db)):
+async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
     pnu_str = str(pnu).zfill(19)
     result_maps = []
 
@@ -43,7 +43,7 @@ async def get(pnu: int = Query(...), db: Session = Depends(get_db)):
 
 
 @router.get("/{map_id}", response_model=MapResponse)
-async def get(map_id: int, db: Session = Depends(get_db)):
+async def get_map(map_id: int, db: Session = Depends(get_db)):
     # 1. map_code 조회
     map_obj = db.query(Map).filter(Map.map_id == map_id).first()
     if not map_obj:
