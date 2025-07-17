@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ggg.database import initialize_db
 from ggg.database.connection import engine, SessionLocal
 
-from ggg.routers import healthz, map, grass
+from ggg.routers import healthz, map, grass, place
 # # 필요한 라우터들을 여기에 import 예: from ggg.routers import users, posts 등
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ async def on_startup():
 app.include_router(healthz.router)
 app.include_router(map.router)
 app.include_router(grass.router)
+app.include_router(place.router)
 # app.include_router(users.router) 등 필요한 것 추가
 
 # 홈 라우트
