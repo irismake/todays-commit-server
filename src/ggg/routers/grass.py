@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=GrassResponse)
-async def get(map_id: int = Query(...), db: Session = Depends(get_db)):
+async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
     rows = (
         db.query(Grass.coord_id, func.count().label("commit_count"))
         .filter(Grass.map_id == map_id)
