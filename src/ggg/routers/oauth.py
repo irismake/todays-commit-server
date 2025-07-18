@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import RedirectResponse
 import httpx
 import os
+from urllib.parse import urlencode
 
 router = APIRouter(
     prefix="/oauth",
@@ -21,6 +23,7 @@ async def get_kakao_login_url():
         f"?client_id={KAKAO_CLIENT_ID}"
         f"&redirect_uri={KAKAO_REDIRECT_URI}"
         f"&response_type=code"
+        f"&prompt=login"
     )
     return {"kakao_login_url": url}
 
@@ -45,10 +48,7 @@ async def kakao_callback(code: str = Query(...)):
         raise HTTPException(status_code=400, detail="카카오 토큰 요청 실패")
 
     token_data = res.json()
-    return {
-        "access_token": token_data["access_token"],
-        "refresh_token": token_data.get("refresh_token"),
-        "expires_in": token_data.get("expires_in"),
-        "token_type": token_data.get("token_type"),
-        "scope": token_data.get("scope")
-    }
+    access_token = token_data["access_token"]
+
+    query = urlencode({"access_token": access_token})
+    return RedirectResponse(url=f"/user/login/kakao?{query}")
