@@ -13,6 +13,7 @@ router = APIRouter(
 
 KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize"
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
+KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token"
 
@@ -35,6 +36,7 @@ async def kakao_callback(code: str = Query(...)):
         "client_id": KAKAO_CLIENT_ID,
         "redirect_uri": KAKAO_REDIRECT_URI,
         "code": code,
+        "client_secret": KAKAO_CLIENT_SECRET
     }
 
     headers = {
