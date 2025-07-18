@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 import httpx
+
 from ggg.database import get_db
-from ggg.models import User
-from ggg.models import Token
+from ggg.models import User, Token
 from ggg.schemas.oauth import AuthHandler
+from ggg.schemas.user import UserResponse
 
 router = APIRouter(
     prefix="/user",
@@ -15,7 +16,7 @@ router = APIRouter(
 
 KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
 
-@router.get("/login/kakao")
+@router.get("/login/kakao", response_model=UserResponse)
 async def login_with_kakao_token(
     access_token: str = Query(...),
     db: Session = Depends(get_db)
@@ -45,13 +46,14 @@ async def login_with_kakao_token(
     access_token = AuthHandler().create_access_token(user.user_id)
     token_model = Token.create_or_update_refresh_token(db, user.user_id)
 
-    return {
-        "access_token": access_token,
-        "refresh_token": token_model.refresh_token,
-        "refresh_token_expires_at": token_model.expires_at.isoformat(),
-        "user_id": user.user_id,
-        "provider": user.provider,
-        "provider_id": user.provider_id,
-        "user_name": user.user_name,
-        "email": user.email,
-    }
+    return UserResponse(
+        access_token=access_token,
+        refresh_token=token_model.refresh_token,
+        refresh_token_expires_at=token_model.expires_at.isoformat(),
+        user_id=user.user_id,
+        user_name=user.user_name,
+        email=user.email,
+        provider=user.provider,
+        provider_id=user.provider_id,
+        created_at=user.created_at.isoformat()
+    )
