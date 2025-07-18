@@ -5,7 +5,7 @@ import ast
 import json
 
 from .connection import SessionLocal
-from ggg.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place
+from ggg.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place, Token
 
 def insert_mock_data(db):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -233,6 +233,7 @@ def reset_table(db):
         db.query(Unit).delete()
         db.query(Cell).delete()
         db.query(Map).delete()
+        db.query(Token).delete()
         db.query(User).delete()
         db.query(Place).delete()
         db.query(Coord).delete()

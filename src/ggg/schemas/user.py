@@ -10,3 +10,8 @@ class UserBase(GggBaseModel):
     provider: str
     provider_id: str
     created_at: datetime
+
+class UserResponse(UserBase):
+    access_token: str
+    refresh_token: str
+    refresh_token_expires_at: str

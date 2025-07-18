@@ -6,6 +6,8 @@ uvicorn[standard]==0.29.0
 SQLAlchemy==2.0.41
 psycopg2-binary==2.9.9
 alembic==1.12.1
+PyJWT==2.9.0
+authlib==1.3.0
 
 # FastAPI 의존성
 itsdangerous==2.1.2
