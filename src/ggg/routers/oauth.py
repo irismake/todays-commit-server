@@ -1,55 +1,54 @@
-from fastapi import APIRouter, Depends,HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 import httpx
-
-from ggg.database import get_db
-from ggg.models.user import User
-from ggg.utils.jwt import create_jwt_token
+import os
 
 router = APIRouter(
     prefix="/oauth",
-    tags=["oauth"]
+    tags=["oauth"],
+    dependencies=[],
+    responses={404: {"description": "Not found"}},
 )
 
-KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
+KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize"
+KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
+KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
+KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token"
+
+@router.get("/kakao/url")
+async def get_kakao_login_url():
+    url = (
+        f"{KAKAO_AUTH_URL}"
+        f"?client_id={KAKAO_CLIENT_ID}"
+        f"&redirect_uri={KAKAO_REDIRECT_URI}"
+        f"&response_type=code"
+    )
+    return {"kakao_login_url": url}
 
 
-@router.get("/login/kakao")
-async def login_with_kakao_token(
-    access_token: str = Query(...),
-    db: Session = Depends(get_db)
-):
+@router.get("/kakao/callback")
+async def kakao_callback(code: str = Query(...)):
+    payload = {
+        "grant_type": "authorization_code",
+        "client_id": KAKAO_CLIENT_ID,
+        "redirect_uri": KAKAO_REDIRECT_URI,
+        "code": code,
+    }
+
     headers = {
-        "Authorization": f"Bearer {access_token}"
+        "Content-Type": "application/x-www-form-urlencoded"
     }
 
     async with httpx.AsyncClient() as client:
-        res = await client.get(KAKAO_USER_INFO_URL, headers=headers)
+        res = await client.post(KAKAO_TOKEN_URL, data=payload, headers=headers)
 
     if res.status_code != 200:
-        raise HTTPException(status_code=401, detail="카카오 사용자 정보 조회 실패")
+        raise HTTPException(status_code=400, detail="카카오 토큰 요청 실패")
 
-    user_data = res.json()
-    kakao_id = str(user_data["id"])
-    nickname = user_data.get("properties", {}).get("nickname")
-    email = user_data.get("kakao_account", {}).get("email")
-
-    # DB에서 유저 조회 또는 생성
-    user = db.query(User).filter_by(provider_id=kakao_id).first()
-    if not user:
-        user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-
-    # JWT 발급
-    jwt_token = create_jwt_token(user.user_id)
-
+    token_data = res.json()
     return {
-        "jwt_token": jwt_token,
-        "user_id": user.user_id,
-        "provider": user.provider,
-        "provider_id": user.provider_id,
-        "user_name": user.user_name,
-        "email": user.email,
+        "access_token": token_data["access_token"],
+        "refresh_token": token_data.get("refresh_token"),
+        "expires_in": token_data.get("expires_in"),
+        "token_type": token_data.get("token_type"),
+        "scope": token_data.get("scope")
     }
