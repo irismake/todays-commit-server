@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends,HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 import httpx
-
 from ggg.database import get_db
-from ggg.models.user import User
-from ggg.utils.jwt import create_jwt_token
+from ggg.models import User
+from ggg.models import Token
+from ggg.schemas.oauth import AuthHandler
 
 router = APIRouter(
     prefix="/user",
@@ -35,7 +35,6 @@ async def login_with_kakao_token(
     nickname = user_data.get("properties", {}).get("nickname")
     email = user_data.get("kakao_account", {}).get("email")
 
-    # DB에서 유저 조회 또는 생성
     user = db.query(User).filter_by(provider_id=kakao_id).first()
     if not user:
         user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
@@ -43,11 +42,13 @@ async def login_with_kakao_token(
         db.commit()
         db.refresh(user)
 
-    # JWT 발급
-    jwt_token = create_jwt_token(user.user_id)
+    access_token = AuthHandler().create_access_token(user.user_id)
+    token_model = Token.create_or_update_refresh_token(db, user.user_id)
 
     return {
-        "jwt_token": jwt_token,
+        "access_token": access_token,
+        "refresh_token": token_model.refresh_token,
+        "refresh_token_expires_at": token_model.expires_at.isoformat(),
         "user_id": user.user_id,
         "provider": user.provider,
         "provider_id": user.provider_id,
