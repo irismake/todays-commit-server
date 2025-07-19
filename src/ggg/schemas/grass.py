@@ -28,3 +28,7 @@ class CommitBase(GggBaseModel):
 class CommitData(BaseModel):
     user_name: str
     created_at: datetime
+
+class CommitResponse(BaseModel):
+    message: str
+    commit: CommitBase
