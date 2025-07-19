@@ -17,7 +17,7 @@ router = APIRouter(
 KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
 
 @router.get("/login/kakao", response_model=UserResponse)
-async def login_with_kakao_token(
+async def login_with_kakao(
     access_token: str = Query(...),
     db: Session = Depends(get_db)
 ):
