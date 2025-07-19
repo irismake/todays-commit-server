@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 @router.get('/update', response_model=str, include_in_schema=False)
-async def auth(
+async def update_token(
     token: str = Depends(AUTHORIZATION_HEADER),
     db: Session = Depends(get_db)
 ):
