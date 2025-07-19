@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from datetime import datetime, UTC
 
 from ggg.database import get_db
-from ggg.models import Grass, Commit
+from ggg.models import Grass, Commit, Unit, Place
 from ggg.schemas.oauth import auth_check
-from ggg.schemas.grass import GrassResponse, GrassData
+from ggg.schemas.grass import GrassResponse, GrassData, CommitBase, CommitResponse
 
 
 router = APIRouter(
@@ -14,6 +15,59 @@ router = APIRouter(
     dependencies=[Depends(auth_check)],
     responses={404: {"description": "Not found"}},
 )
+
+@router.post("/{pnu}", response_model=CommitResponse)
+async def add_grass(
+    pnu: int,
+    user_id: int = Depends(auth_check),
+    db: Session = Depends(get_db)
+):
+    place = db.query(Place).filter(Place.pnu == pnu).first()
+    if not place:
+        raise HTTPException(status_code=400, detail="place 정보가 없습니다. 먼저 /place API로 등록하세요.")
+
+    
+    pnu_str = str(pnu)
+    unit_19 = db.query(Unit).filter(Unit.unit_code == pnu).first()
+
+    unit_8 = db.query(Unit).filter(Unit.unit_code == int(pnu_str[:8])).first()
+    if not unit_8:
+        raise HTTPException(status_code=404, detail="해당하는 8자리 unit_code가 존재하지 않습니다.")
+
+    unit_5 = db.query(Unit).filter(Unit.unit_code == int(pnu_str[:5])).first()
+    if not unit_5:
+        raise HTTPException(status_code=404, detail="해당하는 5자리 unit_code가 존재하지 않습니다.")
+
+    commit = Commit(
+        pnu=pnu,
+        user_id=user_id,
+        created_at=datetime.now(UTC)
+    )
+    db.add(commit)
+    db.commit()
+    db.refresh(commit)
+
+    units_to_add = [u for u in [unit_19, unit_8, unit_5] if u is not None]
+
+    for u in units_to_add:
+        grass = Grass(
+            map_id=u.map_id,
+            coord_id=u.coord_id,
+            commit_id=commit.commit_id
+        )
+        db.add(grass)
+
+    db.commit()
+
+    return CommitResponse(
+        message = "잔디가 성공적으로 심어졌습니다.",
+        commit = CommitBase(
+            commit_id=commit.commit_id,
+            user_id=user_id,
+            pnu=pnu,
+            created_at=commit.created_at,
+        )
+    )
 
 @router.get("/", response_model=GrassResponse)
 async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
