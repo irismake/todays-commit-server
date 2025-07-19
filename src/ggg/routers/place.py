@@ -7,7 +7,7 @@ from math import radians, cos, sin, asin, sqrt
 from ggg.database import get_db
 from ggg.models import Place, Grass, Commit, User
 from ggg.schemas.oauth import auth_check
-from ggg.schemas.place import PlaceData, PlaceResponse, PlaceDetailResponse
+from ggg.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse
 from ggg.schemas.grass import CommitData
 
 
@@ -31,6 +31,21 @@ def get_distance(lat1, lon1, lat2, lon2):
     c = 2 * asin(sqrt(a))
     return round(R * c * 1000)
 
+
+@router.post("/", response_model=PlaceBase)
+async def add_place(
+    place_req: PlaceBase,
+    user_id: int = Depends(auth_check),
+    db: Session = Depends(get_db)
+):
+    if db.query(Place).filter(Place.pnu == place_req.pnu).first():
+        raise HTTPException(status_code=400, detail="이미 존재하는 장소입니다.")
+    
+    place = Place(**place_req.model_dump())
+    db.add(place)
+    db.commit()
+    db.refresh(place)
+    return place
 
 @router.get("/main", response_model=PlaceResponse)
 async def get_places(
