@@ -11,12 +11,13 @@ from ggg.exception import ExpiredTokenException, InvalidTokenException
 AUTHORIZATION_HEADER = APIKeyHeader(name="Authorization")
 
 async def auth_check(token: str = Depends(AUTHORIZATION_HEADER)):
+    if token.startswith("Bearer "):
+        token = token[7:]
     info_from_token = AuthHandler().decode_token(token)
     return info_from_token
 
 class AuthHandler:
-
-    secret_key = os.getenv("SECRET_KEY")
+    secret_key = os.environ["SECRET_KEY"]
     algorithm = os.environ["TOKEN_ALGORITHM"]
     access_expires = timedelta(hours=1)
     refresh_expires = timedelta(days=14)
@@ -33,12 +34,11 @@ class AuthHandler:
         now = datetime.now(UTC)
         payload = {
             "exp": now + expires,
-            "iat": now.timestamp(),
+            "iat": int(now.timestamp()),
             "sub": sub,
         }
-
-        return jwt.encode(payload, self.secret_key, self.algorithm)
-
+        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+    
     def decode_token(self, token: str, verify_exp: bool = True) -> str:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options={"verify_exp": verify_exp})
