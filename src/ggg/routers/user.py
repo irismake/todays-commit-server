@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 import httpx
+from datetime import datetime, timezone
 
 from ggg.database import get_db
 from ggg.models import User, Token
-from ggg.schemas.oauth import AuthHandler
+from ggg.schemas.oauth import AuthHandler, auth_check
 from ggg.schemas.user import UserResponse
 
 router = APIRouter(
@@ -57,3 +58,18 @@ async def login_with_kakao(
         provider_id=user.provider_id,
         created_at=user.created_at.isoformat()
     )
+
+
+@router.post("/logout")
+async def logout(
+    user_id: int = Depends(auth_check),
+    db: Session = Depends(get_db)
+):
+    token = db.query(Token).filter(Token.user_id == user_id).first()
+    if not token:
+        raise HTTPException(status_code=404, detail="로그인된 토큰이 없습니다.")
+
+    token.expires_at = datetime.now(timezone.utc)
+    db.commit()
+
+    return {"message": "성공적으로 로그아웃되었습니다."}
