@@ -61,7 +61,7 @@ async def login_with_kakao(
 
 
 @router.post("/logout")
-async def logout(
+async def logout_user(
     user_id: int = Depends(auth_check),
     db: Session = Depends(get_db)
 ):
@@ -73,3 +73,13 @@ async def logout(
     db.commit()
 
     return {"message": "성공적으로 로그아웃되었습니다."}
+
+@router.get("/leave")
+async def leave_user(
+    user_id: int = Depends(auth_check),
+    db: Session = Depends(get_db)
+):
+    user: User = User.find_by_id(db, user_id)
+    user.is_active = False
+    db.commit()
+    return {"message": "성공적으로 회원이 탈퇴되었습니다."}
