@@ -16,11 +16,12 @@ def insert_mock_data(db):
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
+        token_data = data["tokens"]
         user_data = data["users"]
         commit_data = data["commits"]
         grass_data = data["grass"]
         place_data = data["places"]
-
+        
         # Place 테이블 삽입
         place_objs = [
             Place(
@@ -48,6 +49,19 @@ def insert_mock_data(db):
             for item in user_data
         ]
         db.add_all(user_objs)
+        db.commit()
+
+        # Token 테이블 삽입
+        token_objs = [
+            Token(
+                user_id= item["user_id"],
+                refresh_token= item["refresh_token"],
+                created_at= item["created_at"],
+                expires_at= item["expires_at"],
+            )
+            for item in token_data
+        ]
+        db.add_all(token_objs)
         db.commit()
 
         # Commit 테이블 삽입
