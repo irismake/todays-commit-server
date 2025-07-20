@@ -41,8 +41,15 @@ async def login_with_kakao(
     if not user:
         user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
         db.add(user)
-        db.commit()
-        db.refresh(user)
+    else:
+        # 탈퇴했던 유저 복구
+        if not user.is_active:
+            user.is_active = True
+        user.user_name = nickname
+        user.email = email
+
+    db.commit()
+    db.refresh(user)
 
     access_token = AuthHandler().create_access_token(user.user_id)
     token_model = Token.create_or_update_refresh_token(db, user.user_id)
