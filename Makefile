@@ -10,15 +10,15 @@ dc-down-v2:
 
 # 🗄️ 데이터베이스 제어
 db-access:
-	docker compose exec postgres psql -U postgres -d ggg_db
+	docker compose exec postgres psql -U postgres -d todays-commit-db
 
 db-create:
-	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database ggg"
+	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database TodaysCommit"
 
 db-recreate:
 	docker compose -f docker-compose.yml stop -t 1 web
-	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "drop database ggg"
-	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database ggg"
+	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "drop database TodaysCommit"
+	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database TodaysCommit"
 	docker compose -f docker-compose.yml start web
 
 # 🧬 Alembic 마이그레이션

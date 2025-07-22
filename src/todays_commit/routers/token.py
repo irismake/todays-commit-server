@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from ggg.database import get_db
-from ggg.exception import ExpiredTokenException, ValidTokenException, ForbiddenInvalidTokenException
-from ggg.models import Token
-from ggg.schemas.oauth import AuthHandler, AUTHORIZATION_HEADER
+from todays_commit.database import get_db
+from todays_commit.exception import ExpiredTokenException, ValidTokenException, ForbiddenInvalidTokenException
+from todays_commit.models import Token
+from todays_commit.schemas.oauth import AuthHandler, AUTHORIZATION_HEADER
 
 router = APIRouter(
     prefix="/token",

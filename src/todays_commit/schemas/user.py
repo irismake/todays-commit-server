@@ -1,9 +1,9 @@
 from typing import Optional
 from datetime import datetime
 
-from ggg.schemas.base import GggBaseModel
+from todays_commit.schemas.base import TodaysCommitBaseModel
 
-class UserBase(GggBaseModel):
+class UserBase(TodaysCommitBaseModel):
     user_id: int
     user_name: str
     email: Optional[str] = None

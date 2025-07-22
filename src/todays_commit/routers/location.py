@@ -3,8 +3,8 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from ggg.database import get_db
-from ggg.schemas.location import LocationResponse
+from todays_commit.database import get_db
+from todays_commit.schemas.location import LocationResponse
 
 
 router = APIRouter(

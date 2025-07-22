@@ -5,7 +5,7 @@ import ast
 import json
 
 from .connection import SessionLocal
-from ggg.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place, Token
+from todays_commit.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place, Token
 
 def insert_mock_data(db):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -6,7 +6,7 @@ from authlib.integrations.starlette_client import OAuth
 from fastapi import Depends
 from fastapi.security import APIKeyHeader
 
-from ggg.exception import ExpiredTokenException, InvalidTokenException
+from todays_commit.exception import ExpiredTokenException, InvalidTokenException
 
 AUTHORIZATION_HEADER = APIKeyHeader(name="Authorization")
 

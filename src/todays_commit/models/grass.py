@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from ggg.models.base import GggBase
+from todays_commit.models.base import TodaysCommitBase
 from sqlalchemy import Column, DateTime, ForeignKey, Index, BigInteger, SmallInteger, ForeignKeyConstraint
 
-class Grass(GggBase):
+class Grass(TodaysCommitBase):
     __tablename__ = "grass"
 
     grass_id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -19,7 +19,7 @@ class Grass(GggBase):
         Index("idx_grass_cell", "coord_id", "map_id"),
     )
 
-class Commit(GggBase):
+class Commit(TodaysCommitBase):
     __tablename__ = "commit"
 
     commit_id = Column(BigInteger, primary_key=True, autoincrement=True)

@@ -1,21 +1,21 @@
 from datetime import datetime
 
-from ggg.schemas.base import GggBaseModel
+from todays_commit.schemas.base import TodaysCommitBaseModel
 
-class TokenBase(GggBaseModel):
+class TokenBase(TodaysCommitBaseModel):
     id: int
     user_id: int
     refresh_token: str
     created_at: datetime
     expires_at: datetime
 
-class TokenCreate(GggBaseModel):
+class TokenCreate(TodaysCommitBaseModel):
     user_id: int
     refresh_token: str
     created_at: datetime
     expires_at: datetime
 
-class TokenUpdate(GggBaseModel):
+class TokenUpdate(TodaysCommitBaseModel):
     id: int
     user_id: int
     refresh_token: str

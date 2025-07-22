@@ -6,11 +6,11 @@ from starlette.responses import HTMLResponse
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
-from ggg.database import initialize_db
-from ggg.database.connection import engine, SessionLocal
+from todays_commit.database import initialize_db
+from todays_commit.database.connection import engine, SessionLocal
 
-from ggg.routers import healthz, map, grass, place, token, oauth, user, location
-# # 필요한 라우터들을 여기에 import 예: from ggg.routers import users, posts 등
+from todays_commit.routers import healthz, map, grass, place, token, oauth, user, location
+# # 필요한 라우터들을 여기에 import 예: from todays_commit.routers import users, posts 등
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 from pydantic import BaseModel, field_serializer
 from typing import List
-from ggg.schemas.base import GggBaseModel
-from ggg.schemas.grass import CommitData
+from todays_commit.schemas.base import TodaysCommitBaseModel
+from todays_commit.schemas.grass import CommitData
 
-class PlaceBase(GggBaseModel):
+class PlaceBase(TodaysCommitBaseModel):
     pnu: int
     name: str
     address: str

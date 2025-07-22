@@ -4,11 +4,11 @@ from typing import Dict
 from enum import Enum
 from math import radians, cos, sin, asin, sqrt
 
-from ggg.database import get_db
-from ggg.models import Place, Grass, Commit, User
-from ggg.schemas.oauth import auth_check
-from ggg.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse
-from ggg.schemas.grass import CommitData
+from todays_commit.database import get_db
+from todays_commit.models import Place, Grass, Commit, User
+from todays_commit.schemas.oauth import auth_check
+from todays_commit.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse
+from todays_commit.schemas.grass import CommitData
 
 
 router = APIRouter(

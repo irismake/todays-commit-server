@@ -2,14 +2,14 @@ from typing import Optional
 from pydantic import BaseModel
 from typing import List
 
-from ggg.schemas.base import GggBaseModel
+from todays_commit.schemas.base import TodaysCommitBaseModel
 
-class UnitBase(GggBaseModel):
+class UnitBase(TodaysCommitBaseModel):
     unit_code: int
     coord_id: int
     map_id: int
 
-class CellBase(GggBaseModel):
+class CellBase(TodaysCommitBaseModel):
     coord_id: int
     map_id: int
     zone_code: int
@@ -23,7 +23,7 @@ class CellResponse(BaseModel):
     pnu: int
     maps: List[CellData]
 
-class MapBase(GggBaseModel):
+class MapBase(TodaysCommitBaseModel):
     map_id: int
     map_level: Optional[int] = None
     map_code: Optional[int] = None
@@ -36,7 +36,7 @@ class MapResponse(BaseModel):
     map_code: int
     map_data: List[MapData]
 
-class CoordBase(GggBaseModel):
+class CoordBase(TodaysCommitBaseModel):
     coord_id: int
     x: int
     y: int

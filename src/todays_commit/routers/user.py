@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 import httpx
 from datetime import datetime, timezone
 
-from ggg.database import get_db
-from ggg.models import User, Token
-from ggg.schemas.oauth import AuthHandler, auth_check
-from ggg.schemas.user import UserResponse
+from todays_commit.database import get_db
+from todays_commit.models import User, Token
+from todays_commit.schemas.oauth import AuthHandler, auth_check
+from todays_commit.schemas.user import UserResponse
 
 router = APIRouter(
     prefix="/user",

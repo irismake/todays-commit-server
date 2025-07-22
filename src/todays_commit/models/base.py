@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class GggBase(Base):
+class TodaysCommitBase(Base):
     __abstract__ = True
 
     def to_dict(self):
