@@ -1,21 +1,11 @@
 import os
 from logging.config import fileConfig
-from dotenv import load_dotenv
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-env = os.getenv("ENV", "local")
-env_path = f"envs/.{env}"
-load_dotenv(dotenv_path=env_path)
-
-load_dotenv(dotenv_path=env_path, override=True)
-
-print("⚙️ ENV =", env)
-print("📄 LOADING:", env_path)
-print("🌍 DB_HOST:", os.getenv("DB_HOST"))
 
 config = context.config
 

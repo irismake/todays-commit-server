@@ -10,7 +10,7 @@ dc-down-v2:
 
 # 🗄️ 데이터베이스 제어
 db-access:
-	docker compose exec postgres psql -U postgres -d todays-commit-db
+	docker compose exec postgres psql -U postgres -d todays_commit
 
 db-create:
 	docker compose -f docker-compose.yml exec postgres psql -p 5432 -U postgres -c "create database TodaysCommit"
