@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    container_name: ggg-server
+    container_name: todays-commit-web
     restart: always
     ports:
       - "5000:5000"
@@ -19,7 +19,7 @@ services:
 
   postgres:
     image: postgres:15.4
-    container_name: ggg_db
+    container_name: todays-commit-db
     restart: always
     env_file:
       - .env

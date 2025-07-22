@@ -2,16 +2,16 @@ from sqlalchemy import Column, PrimaryKeyConstraint, Integer, SmallInteger, BigI
 from sqlalchemy.orm import Session
 from typing import List, Tuple
 
-from ggg.models.base import GggBase
+from todays_commit.models.base import TodaysCommitBase
 
-class Map(GggBase):
+class Map(TodaysCommitBase):
     __tablename__ = "map"
 
     map_id = Column(SmallInteger, primary_key=True, autoincrement=True)
     map_level = Column(SmallInteger)
     map_code = Column(BigInteger)
 
-class Coord(GggBase):
+class Coord(TodaysCommitBase):
     __tablename__ = "coord"
 
     coord_id = Column(SmallInteger, primary_key=True)
@@ -19,7 +19,7 @@ class Coord(GggBase):
     y = Column(SmallInteger)
 
 
-class Cell(GggBase):
+class Cell(TodaysCommitBase):
     __tablename__ = "cell"
 
     coord_id = Column(SmallInteger, nullable=False)
@@ -37,7 +37,7 @@ class Cell(GggBase):
         rows = db.query(cls.coord_id, cls.zone_code).filter(cls.map_id == map_id).all()
         return rows
 
-class Unit(GggBase):
+class Unit(TodaysCommitBase):
     __tablename__ = "unit"
 
     unit_code = Column(BigInteger, primary_key=True)

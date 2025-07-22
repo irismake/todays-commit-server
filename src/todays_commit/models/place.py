@@ -1,8 +1,8 @@
-from ggg.models.base import GggBase
+from todays_commit.models.base import TodaysCommitBase
 from sqlalchemy import Column, BigInteger, Text, Float
 
 
-class Place(GggBase):
+class Place(TodaysCommitBase):
     __tablename__ = "place"
 
     pnu = Column(BigInteger, primary_key=True)

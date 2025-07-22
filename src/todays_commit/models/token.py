@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import Union
 
-from ggg.models.base import GggBase
-from ggg.schemas.oauth import AuthHandler
-from ggg.schemas.token import TokenCreate, TokenUpdate
-from ggg.exception import ExpiredTokenException
+from todays_commit.models.base import TodaysCommitBase
+from todays_commit.schemas.oauth import AuthHandler
+from todays_commit.schemas.token import TokenCreate, TokenUpdate
+from todays_commit.exception import ExpiredTokenException
 
 
-class Token(GggBase):
+class Token(TodaysCommitBase):
     __tablename__ = "token"
 
     id = Column(SmallInteger, primary_key=True, autoincrement=True)

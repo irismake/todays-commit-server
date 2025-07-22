@@ -1,10 +1,10 @@
-from ggg.models.base import GggBase
+from todays_commit.models.base import TodaysCommitBase
 from sqlalchemy.orm import Session
 
 from sqlalchemy import Column, SmallInteger, String, DateTime, Index, Boolean
 from datetime import datetime
 
-class User(GggBase):
+class User(TodaysCommitBase):
     __tablename__ = "user"
 
     user_id = Column(SmallInteger, primary_key=True, autoincrement=True)

@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, UTC
 
-from ggg.database import get_db
-from ggg.models import Grass, Commit, Unit, Place
-from ggg.schemas.oauth import auth_check
-from ggg.schemas.grass import GrassResponse, GrassData, CommitBase, CommitResponse
+from todays_commit.database import get_db
+from todays_commit.models import Grass, Commit, Unit, Place
+from todays_commit.schemas.oauth import auth_check
+from todays_commit.schemas.grass import GrassResponse, GrassData, CommitBase, CommitResponse
 
 
 router = APIRouter(
