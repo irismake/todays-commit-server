@@ -60,7 +60,7 @@ async def get_kakao_login_url():
         f"&response_type=code"
         f"&prompt=login"
     )
-    return {"kakao_login_url": url}
+    return RedirectResponse(url)
 
 
 @router.get("/kakao/callback")
