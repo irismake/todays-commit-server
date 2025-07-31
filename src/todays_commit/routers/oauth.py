@@ -14,13 +14,13 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize"
-KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
-KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
-KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
-KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token"
+# KAKAO_AUTH_URL = "https://kauth.kakao.com/oauth/authorize"
+# KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
+# KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
+# KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
+# KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token"
 
-APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize"
+# APPLE_AUTH_URL = "https://appleid.apple.com/auth/authorize"
 APPLE_TEAM_ID = os.getenv("APPLE_TEAM_ID")
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
 APPLE_KEY_ID = os.getenv("APPLE_KEY_ID")
@@ -42,7 +42,7 @@ def create_apple_client_secret():
     claims = {
         "iss": APPLE_TEAM_ID,
         "iat": int(time.time()),
-        "exp": int(time.time()) + 86400 * 180,
+        "exp": int(time.time()) + 3600,
         "aud": "https://appleid.apple.com",
         "sub": APPLE_CLIENT_ID
     }
@@ -50,66 +50,67 @@ def create_apple_client_secret():
     apple_client_secret = jwt.encode(claims, private_key, algorithm="ES256", headers=headers)
     return apple_client_secret
 
+#### web 용 kakao oauth 로그인
 
-@router.get("/kakao/url")
-async def get_kakao_login_url():
-    url = (
-        f"{KAKAO_AUTH_URL}"
-        f"?client_id={KAKAO_CLIENT_ID}"
-        f"&redirect_uri={KAKAO_REDIRECT_URI}"
-        f"&response_type=code"
-        f"&prompt=login"
-    )
-    return RedirectResponse(url)
-
-
-@router.get("/kakao/callback")
-async def kakao_callback(code: str = Query(...)):
-    payload = {
-        "grant_type": "authorization_code",
-        "client_id": KAKAO_CLIENT_ID,
-        "redirect_uri": KAKAO_REDIRECT_URI,
-        "code": code,
-        "client_secret": KAKAO_CLIENT_SECRET
-    }
-
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-
-    async with httpx.AsyncClient() as client:
-        res = await client.post(KAKAO_TOKEN_URL, data=payload, headers=headers)
-
-    if res.status_code != 200:
-        raise HTTPException(status_code=400, detail="카카오 토큰 요청 실패")
-
-    token_data = res.json()
-    access_token = token_data["access_token"]
-
-    query = urlencode({"access_token": access_token})
-    return RedirectResponse(url=f"/user/login/kakao?{query}")
+# @router.get("/kakao/url")
+# async def get_kakao_login_url():
+#     url = (
+#         f"{KAKAO_AUTH_URL}"
+#         f"?client_id={KAKAO_CLIENT_ID}"
+#         f"&redirect_uri={KAKAO_REDIRECT_URI}"
+#         f"&response_type=code"
+#         f"&prompt=login"
+#     )
+#     return RedirectResponse(url)
 
 
-@router.get("/apple/url")
-async def get_apple_login_url():
-    base_url = APPLE_AUTH_URL
-    params = {
-        "response_type": "code",
-        "response_mode": "form_post",
-        "client_id": APPLE_CLIENT_ID,
-        "redirect_uri": APPLE_REDIRECT_URI,
-        "scope": "name email",
-        "state": "optional-custom-state"
-    }
+# @router.get("/kakao/callback")
+# async def kakao_callback(code: str = Query(...)):
+#     payload = {
+#         "grant_type": "authorization_code",
+#         "client_id": KAKAO_CLIENT_ID,
+#         "redirect_uri": KAKAO_REDIRECT_URI,
+#         "code": code,
+#         "client_secret": KAKAO_CLIENT_SECRET
+#     }
 
-    url = f"{base_url}?{urlencode(params)}"
-    return RedirectResponse(url)
+#     headers = {
+#         "Content-Type": "application/x-www-form-urlencoded"
+#     }
+
+#     async with httpx.AsyncClient() as client:
+#         res = await client.post(KAKAO_TOKEN_URL, data=payload, headers=headers)
+
+#     if res.status_code != 200:
+#         raise HTTPException(status_code=400, detail="카카오 토큰 요청 실패")
+
+#     token_data = res.json()
+#     access_token = token_data["access_token"]
+
+#     query = urlencode({"access_token": access_token})
+#     return RedirectResponse(url=f"/user/login/kakao?{query}")
 
 
-@router.post("/apple/callback")
+# @router.get("/apple/url")
+# async def get_apple_login_url():
+#     base_url = APPLE_AUTH_URL
+#     params = {
+#         "response_type": "code",
+#         "response_mode": "form_post",
+#         "client_id": APPLE_CLIENT_ID,
+#         "redirect_uri": APPLE_REDIRECT_URI,
+#         "scope": "name email",
+#         "state": "optional-custom-state"
+#     }
+
+#     url = f"{base_url}?{urlencode(params)}"
+#     return RedirectResponse(url)
+
+
+@router.post("/apple/token")
 async def apple_callback(request: Request):
     form = await request.form()
-    user_json = form.get("user")
+    user_name = form.get("user_name")
     code = form.get("code")
 
     if not code:
@@ -130,24 +131,17 @@ async def apple_callback(request: Request):
         res = await client.post(token_url, data=payload, headers=headers)
 
     if res.status_code != 200:
+        print("status_code:", res.status_code)
+        print("response body:", res.text)
         raise HTTPException(status_code=400, detail="Apple 토큰 요청 실패")
 
     token_data = res.json()
     access_token = token_data.get("access_token")
     if not access_token:
         raise HTTPException(status_code=400, detail="Apple access_token 없음")
-    full_name = None
-    if user_json:
-        try:
-            user_info = json.loads(user_json)
-            first = user_info.get("name", {}).get("firstName", "")
-            last = user_info.get("name", {}).get("lastName", "")
-            full_name = f"{last}{first}".strip()
-        except Exception as e:
-            full_name = None
 
     query = {"id_token": token_data["id_token"]}
-    if full_name:
-        query["user_name"] = full_name
+    if user_name and user_name.strip():
+        query["user_name"] = user_name.strip()
 
     return RedirectResponse(url=f"/user/login/apple?{urlencode(query)}", status_code=303)
