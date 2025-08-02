@@ -8,7 +8,7 @@ services:
     container_name: todays-commit-web
     restart: always
     ports:
-      - "5432:5432"
+      - "5999:5999"
     env_file:
       - .env
     depends_on:
