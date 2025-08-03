@@ -30,4 +30,4 @@ COPY ./src ./src/
 ENV PYTHONPATH=./src
 
 # 서버 실행
-CMD ["uvicorn", "src.todays_commit.main:app", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["uvicorn", "src.todays_commit.main:app", "--host", "0.0.0.0", "--port", "5999"]
