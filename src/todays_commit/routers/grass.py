@@ -69,7 +69,7 @@ async def add_grass(
         )
     )
 
-@router.get("/", response_model=GrassResponse)
+@router.get("", response_model=GrassResponse)
 async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
     rows = (
         db.query(Grass.coord_id, func.count().label("commit_count"))

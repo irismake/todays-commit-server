@@ -32,7 +32,7 @@ def get_distance(lat1, lon1, lat2, lon2):
     return round(R * c * 1000)
 
 
-@router.post("/", response_model=PlaceBase)
+@router.post("", response_model=PlaceBase)
 async def add_place(
     place_req: PlaceBase,
     user_id: int = Depends(auth_check),
