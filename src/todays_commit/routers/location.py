@@ -25,7 +25,7 @@ def make_pnu_code(legal_dong_code:str, bunji: str) -> str:
     return legal_dong_code + "1" + main_bun + sub_bun
 
 
-@router.get("/", response_model=LocationResponse)
+@router.get("", response_model=LocationResponse)
 async def get_pnu(
     lat: float = Query(...),
     lon: float = Query(...),
