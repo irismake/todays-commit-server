@@ -19,9 +19,9 @@ async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
     result_maps = []
 
     levels = [
-        (2, int(pnu_str)),
+        (0, int(pnu_str)),
         (1, int(pnu_str[:8])),
-        (0, int(pnu_str[:5]))
+        (2, int(pnu_str[:5]))
     ]
 
     for level, unit_code in levels:
