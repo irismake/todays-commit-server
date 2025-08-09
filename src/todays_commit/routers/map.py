@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from todays_commit.database import get_db
 from todays_commit.models import Map, Cell, Unit
 
-from todays_commit.schemas.map import MapResponse, CellResponse, CellData
+from todays_commit.schemas.map import MapResponse, CellResponse, CellData,CellBase
 
 router = APIRouter(
     prefix="/map",
@@ -13,10 +13,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get("/cell", response_model=CellResponse)
+@router.get("/cell", response_model=list[CellResponse])
 async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
     pnu_str = str(pnu).zfill(19)
-    result_maps = []
 
     levels = [
         (0, int(pnu_str)),
@@ -24,21 +23,37 @@ async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
         (2, int(pnu_str[:5]))
     ]
 
+    cells: list[CellResponse] = []
+
     for level, unit_code in levels:
         unit = db.query(Unit).filter(Unit.unit_code == unit_code).first()
         if unit:
-            result_maps.append(
-                CellData(
+            cell = (
+                db.query(Cell)
+                .filter(Cell.map_id == unit.map_id, Cell.coord_id == unit.coord_id)
+                .first()
+            )
+            if not cell:
+                raise HTTPException(status_code=404, detail="No cells found for map")
+
+            cells.append(
+                CellResponse(
                     map_level=level,
                     map_id=unit.map_id,
-                    coord_id=unit.coord_id
+                    cell_data =CellData(
+                        coord_id=unit.coord_id,
+                        zone_code=cell.zone_code,
+                    )
                 )
             )
+        else:
+            # pnu 데이터 없을때 근처 pnu 값 가져오기 로직 필요
+            print("⚠️ No unit code matching pnu:", pnu, flush=True)
 
-    if not result_maps:
+    if not cells:
         raise HTTPException(status_code=404, detail="No mapping found for given PNU")
 
-    return CellResponse(pnu=pnu, maps=result_maps)
+    return cells
 
 
 
