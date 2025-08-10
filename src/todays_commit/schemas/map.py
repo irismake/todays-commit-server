@@ -15,13 +15,13 @@ class CellBase(TodaysCommitBaseModel):
     zone_code: int
 
 class CellData(BaseModel):
-    map_level: int
-    map_id: int
     coord_id: int
+    zone_code: int
 
 class CellResponse(BaseModel):
-    pnu: int
-    maps: List[CellData]
+    map_level: int
+    map_id: int
+    cell_data: CellData
 
 class MapBase(TodaysCommitBaseModel):
     map_id: int
