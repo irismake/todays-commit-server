@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import cast, String, func
+
 
 from todays_commit.database import get_db
 from todays_commit.models import Map, Cell, Unit
@@ -27,28 +29,38 @@ async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
 
     for level, unit_code in levels:
         unit = db.query(Unit).filter(Unit.unit_code == unit_code).first()
-        if unit:
-            cell = (
-                db.query(Cell)
-                .filter(Cell.map_id == unit.map_id, Cell.coord_id == unit.coord_id)
+
+        if level != 0 and not unit:
+             raise HTTPException(status_code=404, detail="No matching cell by PNU")
+
+        # level=0 & 매칭 실패 시 유사한 pnu 검색
+        if level == 0 and not unit :
+            print(f"⚠️ No exact match for {pnu_str}, trying similar PNU...", flush=True)
+            unit = (
+                db.query(Unit)
+                .filter(cast(Unit.unit_code, String).like(f"{pnu_str[:15]}%"))
+                .order_by(func.abs(Unit.unit_code - int(pnu_str)))  # 가장 가까운 값
                 .first()
             )
-            if not cell:
-                raise HTTPException(status_code=404, detail="No cells found for map")
 
-            cells.append(
-                CellResponse(
-                    map_level=level,
-                    map_id=unit.map_id,
-                    cell_data =CellData(
-                        coord_id=unit.coord_id,
-                        zone_code=cell.zone_code,
-                    )
+        cell = (
+            db.query(Cell)
+            .filter(Cell.map_id == unit.map_id, Cell.coord_id == unit.coord_id)
+            .first()
+        )
+        if not cell:
+            raise HTTPException(status_code=404, detail="No cells found for map")
+
+        cells.append(
+            CellResponse(
+                map_level=level,
+                map_id=unit.map_id,
+                cell_data =CellData(
+                    coord_id=unit.coord_id,
+                    zone_code=cell.zone_code,
                 )
             )
-        else:
-            # pnu 데이터 없을때 근처 pnu 값 가져오기 로직 필요
-            print("⚠️ No unit code matching pnu:", pnu, flush=True)
+        )
 
     if not cells:
         raise HTTPException(status_code=404, detail="No mapping found for given PNU")
