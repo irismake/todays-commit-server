@@ -4,17 +4,17 @@ from typing import Dict
 from enum import Enum
 from math import radians, cos, sin, asin, sqrt
 
+
 from todays_commit.database import get_db
-from todays_commit.models import Place, Grass, Commit, User
+from todays_commit.models import Place, Grass, Commit, User, Unit
 from todays_commit.schemas.oauth import auth_check
-from todays_commit.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse
+from todays_commit.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse, PlaceCheck
 from todays_commit.schemas.grass import CommitData
 
 
 router = APIRouter(
     prefix="/place",
     tags=["place"],
-    dependencies=[Depends(auth_check)],
     responses={404: {"description": "Not found"}},
 )
 
@@ -32,7 +32,7 @@ def get_distance(lat1, lon1, lat2, lon2):
     return round(R * c * 1000)
 
 
-@router.post("", response_model=PlaceBase)
+@router.post("", response_model=PlaceBase, dependencies=[Depends(auth_check)])
 async def add_place(
     place_req: PlaceBase,
     user_id: int = Depends(auth_check),
@@ -106,7 +106,25 @@ async def get_places(
 
     return PlaceResponse(places=result[:limit])
 
-@router.get("/myplace", response_model=PlaceResponse)
+@router.get("/exist", response_model=PlaceCheck, dependencies=[Depends(auth_check)])
+async def check_place(
+    pnu: int = Query(...),
+    db: Session = Depends(get_db)
+):
+     # 1. unit 테이블에서 pnu 존재 여부 확인
+    unit_exists = db.query(Unit).filter(Unit.pnu == pnu).first() is not None
+
+    # unit 없으면 바로 exists=False 리턴
+    if not unit_exists:
+        return PlaceCheck(exists=False, name=None)
+
+    # 2. place 테이블에서 pnu 존재 여부 + name 조회
+    place = db.query(Place).filter(Place.pnu == pnu).first()
+    place_name = place.name if place else None
+
+    return PlaceCheck(exists=True, name=place_name)
+
+@router.get("/myplace", response_model=PlaceResponse, dependencies=[Depends(auth_check)])
 async def get_my_places(
     user_id: int = Depends(auth_check),
     map_id: int = Query(...),

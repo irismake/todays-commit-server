@@ -1,7 +1,9 @@
 from pydantic import BaseModel, field_serializer
-from typing import List
+from typing import List, Optional
+
 from todays_commit.schemas.base import TodaysCommitBaseModel
 from todays_commit.schemas.grass import CommitData
+
 
 class PlaceBase(TodaysCommitBaseModel):
     pnu: int
@@ -29,3 +31,7 @@ class PlaceResponse(BaseModel):
 
 class PlaceDetailResponse(PlaceBase):
     commits: List[CommitData]
+
+class PlaceCheck(BaseModel):
+    exists: bool
+    name: Optional[str] = None
