@@ -12,11 +12,10 @@ from todays_commit.schemas.grass import GrassResponse, GrassData, CommitBase, Co
 router = APIRouter(
     prefix="/grass",
     tags=["grass"],
-    dependencies=[Depends(auth_check)],
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/{pnu}", response_model=CommitResponse)
+@router.post("/{pnu}", response_model=CommitResponse, dependencies=[Depends(auth_check)])
 async def add_grass(
     pnu: int,
     user_id: int = Depends(auth_check),
@@ -77,10 +76,7 @@ async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
         .group_by(Grass.coord_id)
         .all()
     )
-
-    if not rows:
-        raise HTTPException(status_code=404, detail=f"No grass data found for map_id {map_id}")
-
+    
     grass_data = [
         GrassData(coord_id=row.coord_id, commit_count=row.commit_count)
         for row in rows
@@ -88,7 +84,7 @@ async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
 
     return GrassResponse(map_id=map_id, grass_data=grass_data)
 
-@router.get("/mygrass", response_model=GrassResponse)
+@router.get("/mygrass", response_model=GrassResponse,  dependencies=[Depends(auth_check)])
 async def get_my_grass(
     user_id: int = Depends(auth_check),
     map_id: int = Query(...), 
