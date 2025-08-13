@@ -112,7 +112,7 @@ async def check_place(
     db: Session = Depends(get_db)
 ):
      # 1. unit 테이블에서 pnu 존재 여부 확인
-    unit_exists = db.query(Unit).filter(Unit.pnu == pnu).first() is not None
+    unit_exists = db.query(Unit).filter(Unit.unit_code == pnu).first() is not None
 
     # unit 없으면 바로 exists=False 리턴
     if not unit_exists:
