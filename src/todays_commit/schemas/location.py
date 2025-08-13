@@ -6,3 +6,4 @@ class LocationBase(BaseModel):
 
 class LocationResponse(LocationBase):
     pnu: int
+    address : str

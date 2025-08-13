@@ -54,9 +54,10 @@ async def get_pnu(
     # fullAddress = address_info("fullAddress")
     # ri = address_info("ri")
     pnu = make_pnu_code(address_info.get("legalDongCode"), address_info.get("bunji"))
-
+    address = address_info.get("fullAddress")
     return LocationResponse(
         lat=lat,
         lon=lon,
-        pnu=int(pnu)
-)
+        pnu=int(pnu),
+        address=address
+    )
