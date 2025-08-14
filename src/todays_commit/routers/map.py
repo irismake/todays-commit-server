@@ -33,6 +33,7 @@ async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
         if level != 0 and not unit:
              raise HTTPException(status_code=404, detail="No matching cell by PNU")
 
+
         # level=0 & 매칭 실패 시 유사한 pnu 검색
         if level == 0 and not unit :
             print(f"⚠️ No exact match for {pnu_str}, trying similar PNU...", flush=True)
@@ -42,6 +43,9 @@ async def get_cell(pnu: int = Query(...), db: Session = Depends(get_db)):
                 .order_by(func.abs(Unit.unit_code - int(pnu_str)))  # 가장 가까운 값
                 .first()
             )
+
+            if not unit:
+                continue
 
         cell = (
             db.query(Cell)
