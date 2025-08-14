@@ -1,4 +1,5 @@
 import os
+import re
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -17,10 +18,11 @@ router = APIRouter(
 SK_REVERSE_GEO_URL = "https://apis.openapi.sk.com/tmap/geo/reversegeocoding"
 SK_APP_KEY = os.getenv("SK_APP_KEY")
 
-def make_pnu_code(legal_dong_code:str, bunji: str) -> str:
-    parts = bunji.split("-")
-    main_bun = parts[0].zfill(4) if len(parts) > 0 else "0000"
-    sub_bun = parts[1].zfill(4) if len(parts) > 1 else "0000"
+def make_pnu_code(legal_dong_code: str, bunji: str) -> str:
+    clean_bunji = re.sub(r"[^0-9\-]", "", bunji)
+    parts = clean_bunji.split("-")
+    main_bun = parts[0].zfill(4) if len(parts) > 0 and parts[0] else "0000"
+    sub_bun = parts[1].zfill(4) if len(parts) > 1 and parts[1] else "0000"
 
     return legal_dong_code + "1" + main_bun + sub_bun
 
