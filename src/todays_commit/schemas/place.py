@@ -19,7 +19,7 @@ class PlaceBase(TodaysCommitBaseModel):
 class PlaceData(BaseModel):
     pnu: int
     name: str
-    distance : float
+    distance : str
     commit_count: int
 
     @field_serializer("pnu")

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Dict
 from enum import Enum
-from math import radians, cos, sin, asin, sqrt
+from math import radians, sin, cos, sqrt, atan2
 
 
 from todays_commit.database import get_db
@@ -23,13 +23,27 @@ class SortOption(str, Enum):
     popular = "popular"
 
 
+
 def get_distance(lat1, lon1, lat2, lon2):
     R = 6371
+
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
-    a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a))
-    return round(R * c * 1000)
+
+    lat1 = radians(lat1)
+    lat2 = radians(lat2)
+
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance_m = R * c * 1000
+
+    if distance_m >= 10_000:
+        return "10km+"
+    elif distance_m >= 1000:
+        return f"{distance_m / 1000:.1f}km"
+    else:
+        return f"{int(round(distance_m))}m"
 
 
 @router.post("", response_model=PlaceBase, dependencies=[Depends(auth_check)])
@@ -90,11 +104,11 @@ async def get_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.y, place.x, x, y)
+        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=round(dist, 2),
+            distance=dist,
             commit_count=stats["count"]
         ))
 
@@ -169,11 +183,11 @@ async def get_my_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.y, place.x, x, y)
+        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=round(dist, 2),
+            distance=dist,
             commit_count=stats["count"]
         ))
 
