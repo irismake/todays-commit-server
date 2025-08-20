@@ -144,4 +144,7 @@ async def apple_callback(request: Request):
     if user_name and user_name.strip():
         query["user_name"] = user_name.strip()
 
-    return RedirectResponse(url=f"/user/login/apple?{urlencode(query)}", status_code=303)
+    return RedirectResponse(
+        url=f"/user/login/apple?{urlencode(query, encoding='utf-8')}",
+        status_code=303
+    )
