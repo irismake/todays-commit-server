@@ -208,7 +208,7 @@ async def get_place_detail(pnu: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="Place not found")
 
     rows = (
-        db.query(User.user_name.label("user_name"), Commit.created_at)
+        db.query(Commit.commit_id, User.user_name.label("user_name"), Commit.created_at)
         .join(User, User.user_id == Commit.user_id)
         .filter(Commit.pnu == pnu)
         .order_by(Commit.created_at.desc())
@@ -216,7 +216,7 @@ async def get_place_detail(pnu: int, db: Session = Depends(get_db)
     )
 
     commit_data = [
-        CommitData(user_name=row.user_name, created_at=row.created_at)
+        CommitData(commit_id=row.commit_id,user_name=row.user_name, created_at=row.created_at)
         for row in rows
     ]
 
