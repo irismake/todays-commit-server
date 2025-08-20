@@ -26,6 +26,7 @@ class CommitBase(TodaysCommitBaseModel):
     created_at: datetime
 
 class CommitData(BaseModel):
+    commit_id: int
     user_name: str
     created_at: datetime
 
