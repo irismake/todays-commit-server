@@ -10,8 +10,8 @@ from todays_commit.models import Coord, Map, Cell, Unit, Grass, Commit, User, Pl
 def insert_coord(db):
     try:
         coord_id = 0
-        for y in range(24):
-            for x in range(24):
+        for y in range(22):
+            for x in range(22):
                 db.add(Coord(coord_id=coord_id, x=x, y=y))
                 coord_id += 1
         db.commit()
