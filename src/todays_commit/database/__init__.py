@@ -149,14 +149,9 @@ def initialize_db():
 
 def reset_table(db):
     try:
-        db.query(Grass).delete()
-        db.query(Commit).delete()
         db.query(Unit).delete()
         db.query(Cell).delete()
         db.query(Map).delete()
-        db.query(Token).delete()
-        db.query(User).delete()
-        db.query(Place).delete()
         db.query(Coord).delete()
         db.commit()
         print(f"🧹 테이블 초기화 완료",  flush=True)
