@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# @app.on_event("startup")
-# async def on_startup():
-#     initialize_db()
+@app.on_event("startup")
+async def on_startup():
+    initialize_db()
 
 # # 환경 변수에서 ORIGIN 설정
 # origin = os.getenv("ORIGIN", "http://127.0.0.1:5173")
