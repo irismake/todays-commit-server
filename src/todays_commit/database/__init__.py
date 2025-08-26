@@ -5,7 +5,7 @@ import ast
 import json
 
 from .connection import SessionLocal
-from todays_commit.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place, Token
+from todays_commit.models import Coord, Map, Cell, Unit
 
 def insert_coord(db):
     try:

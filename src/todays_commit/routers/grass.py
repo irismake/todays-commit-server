@@ -6,8 +6,8 @@ from datetime import datetime, UTC
 from todays_commit.database import get_db
 from todays_commit.models import Grass, Commit, Unit, Place
 from todays_commit.schemas.oauth import auth_check
-from todays_commit.schemas.grass import GrassResponse, GrassData, PostResponse
-
+from todays_commit.schemas.grass import GrassResponse, GrassData
+from todays_commit.schemas.base import PostResponse
 
 router = APIRouter(
     prefix="/grass",

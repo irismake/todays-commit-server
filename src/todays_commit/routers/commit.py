@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from todays_commit.database import get_db
 from todays_commit.models import Commit, Place
 from todays_commit.schemas.oauth import auth_check
-from todays_commit.schemas.grass import CommitData, CommitResponse
+from todays_commit.schemas.commit import CommitData, CommitResponse
 
 
 router = APIRouter(
