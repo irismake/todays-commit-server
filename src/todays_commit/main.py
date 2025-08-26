@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from todays_commit.database import initialize_db
 from todays_commit.database.connection import engine, SessionLocal
 
-from todays_commit.routers import healthz, map, grass, place, token, oauth, user, location
+from todays_commit.routers import healthz, map, grass, place, token, oauth, user, location, commit
 # # 필요한 라우터들을 여기에 import 예: from todays_commit.routers import users, posts 등
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ app.include_router(grass.router)
 app.include_router(place.router)
 app.include_router(user.router)
 app.include_router(location.router)
-# app.include_router(users.router) 등 필요한 것 추가
+app.include_router(commit.router)
 
 # 홈 라우트
 @app.get("/")

@@ -27,11 +27,13 @@ class CommitBase(TodaysCommitBaseModel):
 
 class CommitData(BaseModel):
     commit_id: int
-    user_name: str
+    user_name: Optional[str] = None
     created_at: datetime
     pnu: Optional[int] = None
-    name: Optional[str] = None
-    address: Optional[str] = None
+    place_name: Optional[str] = None
+
+class CommitResponse(BaseModel):
+    commits: List[CommitData]
 
 class PostResponse(BaseModel):
     message: str
