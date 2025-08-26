@@ -10,12 +10,12 @@ from todays_commit.schemas.commit import CommitData, CommitResponse
 router = APIRouter(
     prefix="/commit",
     tags=["commit"],
-    dependencies=[],
+    dependencies=[Depends(auth_check)],
     responses={404: {"description": "Not found"}},
 )
 
 
-@router.get("/mycommit", response_model=CommitResponse, dependencies=[Depends(auth_check)])
+@router.get("/mycommit", response_model=CommitResponse)
 async def get_my_commit( 
     user_id: int = Depends(auth_check),
     limit: int = Query(10, ge=1, le=100),

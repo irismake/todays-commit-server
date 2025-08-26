@@ -16,6 +16,7 @@ from todays_commit.schemas.base import PostResponse
 router = APIRouter(
     prefix="/place",
     tags=["place"],
+    dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
