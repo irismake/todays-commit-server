@@ -9,7 +9,8 @@ from todays_commit.database import get_db
 from todays_commit.models import Place, Grass, Commit, User, Unit
 from todays_commit.schemas.oauth import auth_check
 from todays_commit.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse, PlaceCheck
-from todays_commit.schemas.grass import CommitData
+from todays_commit.schemas.commit import CommitData
+from todays_commit.schemas.base import PostResponse
 
 
 router = APIRouter(
@@ -46,7 +47,7 @@ def get_distance(lat1, lon1, lat2, lon2):
         return f"{int(round(distance_m))}m"
 
 
-@router.post("", response_model=PlaceBase, dependencies=[Depends(auth_check)])
+@router.post("", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def add_place(
     place_req: PlaceBase,
     user_id: int = Depends(auth_check),
@@ -59,7 +60,10 @@ async def add_place(
     db.add(place)
     db.commit()
     db.refresh(place)
-    return place
+
+    return PostResponse(
+        message = "Success",
+    )
 
 @router.get("/main", response_model=PlaceResponse)
 async def get_places(
