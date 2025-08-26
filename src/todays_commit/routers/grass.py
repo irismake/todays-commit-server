@@ -6,7 +6,7 @@ from datetime import datetime, UTC
 from todays_commit.database import get_db
 from todays_commit.models import Grass, Commit, Unit, Place
 from todays_commit.schemas.oauth import auth_check
-from todays_commit.schemas.grass import GrassResponse, GrassData, CommitBase, CommitResponse
+from todays_commit.schemas.grass import GrassResponse, GrassData, PostResponse
 
 
 router = APIRouter(
@@ -15,7 +15,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/{pnu}", response_model=CommitResponse, dependencies=[Depends(auth_check)])
+@router.post("/{pnu}", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def add_grass(
     pnu: int,
     user_id: int = Depends(auth_check),
@@ -58,14 +58,8 @@ async def add_grass(
 
     db.commit()
 
-    return CommitResponse(
-        message = "잔디가 성공적으로 심어졌습니다.",
-        commit = CommitBase(
-            commit_id=commit.commit_id,
-            user_id=user_id,
-            pnu=pnu,
-            created_at=commit.created_at,
-        )
+    return PostResponse(
+        message = "Success",
     )
 
 @router.get("", response_model=GrassResponse)
