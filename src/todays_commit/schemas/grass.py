@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from todays_commit.schemas.base import TodaysCommitBaseModel
 
@@ -29,7 +29,9 @@ class CommitData(BaseModel):
     commit_id: int
     user_name: str
     created_at: datetime
+    pnu: Optional[int] = None
+    name: Optional[str] = None
+    address: Optional[str] = None
 
-class CommitResponse(BaseModel):
+class PostResponse(BaseModel):
     message: str
-    commit: CommitBase
