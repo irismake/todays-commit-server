@@ -12,6 +12,7 @@ from todays_commit.database import get_db
 from todays_commit.models import User, Token
 from todays_commit.schemas.oauth import AuthHandler, auth_check
 from todays_commit.schemas.user import UserResponse
+from todays_commit.schemas.base import PostResponse
 
 router = APIRouter(
     prefix="/user",
@@ -132,7 +133,7 @@ async def login_with_apple(
     )
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def logout_user(
     user_id: int = Depends(auth_check),
     db: Session = Depends(get_db)
@@ -144,9 +145,11 @@ async def logout_user(
     token.expires_at = datetime.now(timezone.utc)
     db.commit()
 
-    return {"message": "성공적으로 로그아웃되었습니다."}
+    return PostResponse(
+        message = "Success",
+    )
 
-@router.get("/leave")
+@router.get("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def leave_user(
     user_id: int = Depends(auth_check),
     db: Session = Depends(get_db)
@@ -154,4 +157,7 @@ async def leave_user(
     user: User = User.find_by_id(db, user_id)
     user.is_active = False
     db.commit()
-    return {"message": "성공적으로 회원이 탈퇴되었습니다."}
+    
+    return PostResponse(
+        message = "Success",
+    )

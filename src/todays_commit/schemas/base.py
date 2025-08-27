@@ -7,3 +7,6 @@ class TodaysCommitBaseModel(BaseModel):
 
     def to_json(self):
         return json.loads(self.model_dump_json())
+
+class PostResponse(BaseModel):
+    message: str

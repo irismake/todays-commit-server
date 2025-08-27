@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_serializer
 from typing import List, Optional
 
 from todays_commit.schemas.base import TodaysCommitBaseModel
-from todays_commit.schemas.grass import CommitData
+from todays_commit.schemas.commit import CommitData
 
 
 class PlaceBase(TodaysCommitBaseModel):
@@ -19,7 +19,8 @@ class PlaceBase(TodaysCommitBaseModel):
 class PlaceData(BaseModel):
     pnu: int
     name: str
-    distance : str
+    x: float
+    y: float
     commit_count: int
 
     @field_serializer("pnu")

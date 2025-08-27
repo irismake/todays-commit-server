@@ -9,12 +9,14 @@ from todays_commit.database import get_db
 from todays_commit.models import Place, Grass, Commit, User, Unit
 from todays_commit.schemas.oauth import auth_check
 from todays_commit.schemas.place import PlaceBase, PlaceData, PlaceResponse, PlaceDetailResponse, PlaceCheck
-from todays_commit.schemas.grass import CommitData
+from todays_commit.schemas.commit import CommitData
+from todays_commit.schemas.base import PostResponse
 
 
 router = APIRouter(
     prefix="/place",
     tags=["place"],
+    dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
@@ -24,29 +26,7 @@ class SortOption(str, Enum):
 
 
 
-def get_distance(lat1, lon1, lat2, lon2):
-    R = 6371
-
-    dlat = radians(lat2 - lat1)
-    dlon = radians(lon2 - lon1)
-
-    lat1 = radians(lat1)
-    lat2 = radians(lat2)
-
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    distance_m = R * c * 1000
-
-    if distance_m >= 10_000:
-        return "10km+"
-    elif distance_m >= 1000:
-        return f"{distance_m / 1000:.1f}km"
-    else:
-        return f"{int(round(distance_m))}m"
-
-
-@router.post("", response_model=PlaceBase, dependencies=[Depends(auth_check)])
+@router.post("", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def add_place(
     place_req: PlaceBase,
     user_id: int = Depends(auth_check),
@@ -59,14 +39,15 @@ async def add_place(
     db.add(place)
     db.commit()
     db.refresh(place)
-    return place
+
+    return PostResponse(
+        message = "Success",
+    )
 
 @router.get("/main", response_model=PlaceResponse)
 async def get_places(
     map_id: int = Query(...),
     coord_id: int= Query(...),
-    x: float = Query(...),
-    y: float = Query(...),
     sort: SortOption = Query(SortOption.recent),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
@@ -104,11 +85,11 @@ async def get_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=dist,
+            x=place.x,
+            y=place.y,
             commit_count=stats["count"]
         ))
 
@@ -143,8 +124,6 @@ async def get_my_places(
     user_id: int = Depends(auth_check),
     map_id: int = Query(...),
     coord_id: int= Query(...),
-    x: float = Query(...),
-    y: float = Query(...),
     sort: SortOption = Query(SortOption.recent),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
@@ -183,11 +162,11 @@ async def get_my_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=dist,
+            x=place.x,
+            y=place.y,
             commit_count=stats["count"]
         ))
 

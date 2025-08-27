@@ -6,12 +6,13 @@ from datetime import datetime, UTC
 from todays_commit.database import get_db
 from todays_commit.models import Grass, Commit, Unit, Place
 from todays_commit.schemas.oauth import auth_check
-from todays_commit.schemas.grass import GrassResponse, GrassData, PostResponse
-
+from todays_commit.schemas.grass import GrassResponse, GrassData
+from todays_commit.schemas.base import PostResponse
 
 router = APIRouter(
     prefix="/grass",
     tags=["grass"],
+    dependencies=[],
     responses={404: {"description": "Not found"}},
 )
 
@@ -78,7 +79,7 @@ async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
 
     return GrassResponse(map_id=map_id, grass_data=grass_data)
 
-@router.get("/mygrass", response_model=GrassResponse,  dependencies=[Depends(auth_check)])
+@router.get("/mygrass", response_model=GrassResponse, dependencies=[Depends(auth_check)])
 async def get_my_grass(
     user_id: int = Depends(auth_check),
     map_id: int = Query(...), 

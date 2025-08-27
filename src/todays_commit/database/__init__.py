@@ -5,7 +5,7 @@ import ast
 import json
 
 from .connection import SessionLocal
-from todays_commit.models import Coord, Map, Cell, Unit, Grass, Commit, User, Place, Token
+from todays_commit.models import Coord, Map, Cell, Unit
 
 def insert_coord(db):
     try:
@@ -126,7 +126,7 @@ def insert_csv(db):
 
 def initialize_db():
     db = SessionLocal()
-    reset_table(db)
+    #reset_table(db)
     try:
         if not db.query(Coord).first():
             print("🚀 insert_coord 실행", flush=True)
