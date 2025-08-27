@@ -28,13 +28,9 @@ class MapBase(TodaysCommitBaseModel):
     map_level: Optional[int] = None
     map_code: Optional[int] = None
 
-class MapData(BaseModel):
-    coord_id: int
-    zone_code: int
-
 class MapResponse(BaseModel):
     map_code: int
-    map_data: List[MapData]
+    map_data: List[CellData]
 
 class CoordBase(TodaysCommitBaseModel):
     coord_id: int

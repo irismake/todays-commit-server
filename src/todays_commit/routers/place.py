@@ -26,28 +26,6 @@ class SortOption(str, Enum):
 
 
 
-def get_distance(lat1, lon1, lat2, lon2):
-    R = 6371
-
-    dlat = radians(lat2 - lat1)
-    dlon = radians(lon2 - lon1)
-
-    lat1 = radians(lat1)
-    lat2 = radians(lat2)
-
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    distance_m = R * c * 1000
-
-    if distance_m >= 10_000:
-        return "10km+"
-    elif distance_m >= 1000:
-        return f"{distance_m / 1000:.1f}km"
-    else:
-        return f"{int(round(distance_m))}m"
-
-
 @router.post("", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def add_place(
     place_req: PlaceBase,
@@ -109,11 +87,11 @@ async def get_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=dist,
+            x=place.x,
+            y=place.y,
             commit_count=stats["count"]
         ))
 
@@ -188,11 +166,11 @@ async def get_my_places(
     result = []
     for place in places:
         stats = pnu_stats.get(place.pnu)
-        dist = get_distance(place.x, place.y, x, y)
         result.append(PlaceData(
             pnu=place.pnu,
             name=place.name,
-            distance=dist,
+            x=place.x,
+            y=place.y,
             commit_count=stats["count"]
         ))
 
