@@ -48,8 +48,6 @@ async def add_place(
 async def get_places(
     map_id: int = Query(...),
     coord_id: int= Query(...),
-    x: float = Query(...),
-    y: float = Query(...),
     sort: SortOption = Query(SortOption.recent),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
@@ -126,8 +124,6 @@ async def get_my_places(
     user_id: int = Depends(auth_check),
     map_id: int = Query(...),
     coord_id: int= Query(...),
-    x: float = Query(...),
-    y: float = Query(...),
     sort: SortOption = Query(SortOption.recent),
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
