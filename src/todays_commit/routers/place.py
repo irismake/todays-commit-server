@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, desc
 from typing import Dict
 from enum import Enum
 from math import radians, sin, cos, sqrt, atan2
@@ -177,6 +178,53 @@ async def get_my_places(
         result.sort(key=lambda x: pnu_stats[x.pnu]["latest"], reverse=True)
 
     return PlaceResponse(places=result[:limit])
+
+
+@router.get("/myplaces", response_model=PlaceResponse, dependencies=[Depends(auth_check)])
+async def get_my_places(
+    user_id: int = Depends(auth_check),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    # 1. commit 테이블에서 user_id별 커밋 가져오기 + pnu 그룹화
+    commit_counts = (
+        db.query(
+            Commit.pnu,
+            func.count(Commit.commit_id).label("commit_count")
+        )
+        .filter(Commit.user_id == user_id)
+        .group_by(Commit.pnu)
+        .subquery()
+    )
+
+    # 2. place 테이블과 join해서 필요한 데이터 가져오기
+    results = (
+        db.query(
+            Place.pnu,
+            Place.name,
+            Place.x,
+            Place.y,
+            commit_counts.c.commit_count
+        )
+        .join(commit_counts, Place.pnu == commit_counts.c.pnu)
+        .order_by(desc(commit_counts.c.commit_count))
+        .limit(limit)
+        .all()
+    )
+
+    # 3. Pydantic PlaceData에 맞게 변환
+    places = [
+        PlaceData(
+            pnu=r.pnu,
+            name=r.name,
+            x=r.x,
+            y=r.y,
+            commit_count=r.commit_count
+        )
+        for r in results
+    ]
+
+    return PlaceResponse(places=places)
 
 
 @router.get("/{pnu}", response_model=PlaceDetailResponse)
