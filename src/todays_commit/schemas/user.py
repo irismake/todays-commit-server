@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
@@ -10,6 +11,10 @@ class UserBase(TodaysCommitBaseModel):
     provider: str
     provider_id: str
     created_at: datetime
+
+class UserData(BaseModel):
+    user_name: str
+    provider: str
 
 class UserResponse(UserBase):
     access_token: str

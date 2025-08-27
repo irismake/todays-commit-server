@@ -11,7 +11,7 @@ from jwt import PyJWKClient
 from todays_commit.database import get_db
 from todays_commit.models import User, Token
 from todays_commit.schemas.oauth import AuthHandler, auth_check
-from todays_commit.schemas.user import UserResponse
+from todays_commit.schemas.user import UserResponse, UserData
 from todays_commit.schemas.base import PostResponse
 
 router = APIRouter(
@@ -130,6 +130,21 @@ async def login_with_apple(
         provider=user.provider,
         provider_id=user.provider_id,
         created_at=user.created_at.isoformat()
+    )
+
+@router.get("/info", response_model=UserData, dependencies=[Depends(auth_check)])
+async def get_user_info(
+    user_id: int = Depends(auth_check),
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.user_id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+
+    return UserData(
+        user_name=user.user_name,
+        provider=user.provider
     )
 
 
