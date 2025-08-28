@@ -19,4 +19,5 @@ class CommitData(BaseModel):
     place_name: Optional[str] = None
 
 class CommitResponse(BaseModel):
+    next_cursor: Optional[int]
     commits: List[CommitData]
