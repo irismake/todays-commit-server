@@ -18,34 +18,39 @@ router = APIRouter(
 @router.get("/mycommit", response_model=CommitResponse)
 async def get_my_commit( 
     user_id: int = Depends(auth_check),
-    limit: int = Query(10, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    cursor: int = Query(9_999_999_999_999, description="이전 페이지의 마지막 commit_id"),
+    limit: int = Query(10, ge=1, le=100, description="한 페이지당 가져올 커밋 수"),
     ):
 
-    commits = (
-        db.query(Commit)
+    rows = (
+        db.query(
+            Commit.commit_id,
+            Commit.created_at,
+            Commit.pnu,
+            Place.name.label("place_name")
+        )
+        .outerjoin(Place, Place.pnu == Commit.pnu)
         .filter(Commit.user_id == user_id)
-        .order_by(Commit.created_at.desc())
+        .filter(Commit.commit_id < cursor)
+        .order_by(Commit.commit_id.desc())
         .limit(limit)
         .all()
     )
 
-    if not commits:
-        return CommitResponse(commits=[])
+    if not rows:
+        return CommitResponse(commits=[], next_cursor=None)
 
-    response_commits = []
-    for commit in commits:
-      
-        place = db.query(Place).filter(Place.pnu == commit.pnu).first()
-        place_name = place.name if place else None
-        pnu = place.pnu if place else None
-
-        commit_data = CommitData(
-            commit_id=commit.commit_id,
-            created_at=commit.created_at,
-            pnu=pnu,
-            place_name=place_name
+    response_commits = [
+        CommitData(
+            commit_id=row.commit_id,
+            created_at=row.created_at,
+            pnu=row.pnu,
+            place_name=row.place_name,
         )
-        response_commits.append(commit_data)
+        for row in rows
+    ]
 
-    return CommitResponse(commits=response_commits)
+    next_cursor = rows[-1].commit_id if len(rows) == limit else None
+
+    return CommitResponse(commits=response_commits, next_cursor=next_cursor)

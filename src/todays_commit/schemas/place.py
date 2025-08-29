@@ -28,6 +28,7 @@ class PlaceData(BaseModel):
         return str(pnu)
 
 class PlaceResponse(BaseModel):
+    next_cursor: Optional[str]
     places: List[PlaceData]
 
 class PlaceDetailResponse(PlaceBase):
