@@ -28,7 +28,8 @@ async def get_my_commit(
             Commit.commit_id,
             Commit.created_at,
             Commit.pnu,
-            Place.name.label("place_name")
+            Place.name.label("place_name"),
+            Place.address.label("place_address")
         )
         .outerjoin(Place, Place.pnu == Commit.pnu)
         .filter(Commit.user_id == user_id)
@@ -47,6 +48,7 @@ async def get_my_commit(
             created_at=row.created_at,
             pnu=row.pnu,
             place_name=row.place_name,
+            address=row.place_address
         )
         for row in rows
     ]
