@@ -17,6 +17,7 @@ class CommitData(BaseModel):
     created_at: datetime
     pnu: Optional[int] = None
     place_name: Optional[str] = None
+    address: Optional[str] = None
 
 class CommitResponse(BaseModel):
     next_cursor: Optional[int]

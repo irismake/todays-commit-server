@@ -98,6 +98,7 @@ async def get_places(
     query = db.query(
         Place.pnu,
         Place.name,
+        Place.address,  # address 추가
         Place.x,
         Place.y,
         commit_stats_subquery.c.commit_count,
@@ -164,6 +165,7 @@ async def get_places(
         PlaceData(
             pnu=r.pnu,
             name=r.name,
+            address=r.address,
             x=r.x,
             y=r.y,
             commit_count=r.commit_count
@@ -218,6 +220,7 @@ async def get_my_places(
     query = db.query(
         Place.pnu,
         Place.name,
+        Place.address,
         Place.x,
         Place.y,
         commit_stats_subquery.c.commit_count,
@@ -281,6 +284,7 @@ async def get_my_places(
         PlaceData(
             pnu=r.pnu,
             name=r.name,
+            address=r.address,
             x=r.x,
             y=r.y,
             commit_count=r.commit_count
@@ -329,6 +333,7 @@ async def get_my_places(
         db.query(
             Place.pnu,
             Place.name,
+            Place.address,
             Place.x,
             Place.y,
             commit_counts.c.commit_count
@@ -372,6 +377,7 @@ async def get_my_places(
         PlaceData(
             pnu=r.pnu,
             name=r.name,
+            address=r.address,
             x=r.x,
             y=r.y,
             commit_count=r.commit_count

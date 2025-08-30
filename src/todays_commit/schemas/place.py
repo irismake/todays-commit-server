@@ -16,11 +16,7 @@ class PlaceBase(TodaysCommitBaseModel):
     def serialize_pnu(self, pnu: int, _info):
         return str(pnu)
 
-class PlaceData(BaseModel):
-    pnu: int
-    name: str
-    x: float
-    y: float
+class PlaceData(PlaceBase):
     commit_count: int
 
     @field_serializer("pnu")
