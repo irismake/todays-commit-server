@@ -22,6 +22,8 @@ router = APIRouter(
 )
 
 KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
+KAKAO_DISCONNECT_URL = "https://kapi.kakao.com/v1/user/unlink"
+KAKAO_ADMIN_KEY = os.getenv("KAKAO_ADMIN_KEY")
 
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
 APPLE_AUTH_KEY_URL = "https://appleid.apple.com/auth/keys"
@@ -65,11 +67,19 @@ async def login_with_kakao(
         user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
         db.add(user)
     else:
-        # 탈퇴했던 유저 복구
         if not user.is_active:
-            user.is_active = True
-        user.user_name = nickname
-        user.email = email
+            restored_name = user.user_name
+            new_user = User(
+                provider="kakao",
+                provider_id=kakao_id,
+                user_name=restored_name,
+                email=email
+            )
+            db.add(new_user)
+            user = new_user
+        else:
+            user.user_name = nickname
+            user.email = email
 
     db.commit()
     db.refresh(user)
@@ -110,10 +120,19 @@ async def login_with_apple(
         user = User(provider="apple", provider_id=provider_id, user_name=user_name, email=email)
         db.add(user)
     else:
-        # 탈퇴했던 유저 복구
         if not user.is_active:
-            user.is_active = True
-        user.email = email
+            restored_name = user.user_name
+            new_user = User(
+                provider="apple",
+                provider_id=provider_id,
+                user_name=restored_name,
+                email=email
+            )
+            db.add(new_user)
+            user = new_user
+        else:
+            user.email = email
+
     db.commit()
     db.refresh(user)
 
@@ -164,12 +183,34 @@ async def logout_user(
         message = "Success",
     )
 
-@router.get("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
+
+@router.post("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def leave_user(
     user_id: int = Depends(auth_check),
     db: Session = Depends(get_db)
 ):
     user: User = User.find_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다.")
+
+    if not user.provider_id:
+        raise HTTPException(status_code=400, detail="provider_id가 없습니다.")
+
+    if user.provider == "kakao":
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            "Authorization": f"KakaoAK {KAKAO_ADMIN_KEY}"
+        }
+        data = {
+            "target_id_type": "user_id",
+            "target_id": user.provider_id
+        }
+
+        async with httpx.AsyncClient() as client:
+            res = await client.post(KAKAO_DISCONNECT_URL, headers=headers, data=data)
+
+        if res.status_code != 200:
+            raise HTTPException(status_code=res.status_code, detail=f"카카오 unlink 실패: {res.text}")
     user.is_active = False
     db.commit()
     
