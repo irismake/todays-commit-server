@@ -67,11 +67,19 @@ async def login_with_kakao(
         user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
         db.add(user)
     else:
-        # 탈퇴했던 유저 복구
         if not user.is_active:
-            user.is_active = True
-        user.user_name = nickname
-        user.email = email
+            restored_name = user.user_name
+            new_user = User(
+                provider="kakao",
+                provider_id=kakao_id,
+                user_name=restored_name,
+                email=email
+            )
+            db.add(new_user)
+            user = new_user
+        else:
+            user.user_name = nickname
+            user.email = email
 
     db.commit()
     db.refresh(user)
@@ -112,10 +120,19 @@ async def login_with_apple(
         user = User(provider="apple", provider_id=provider_id, user_name=user_name, email=email)
         db.add(user)
     else:
-        # 탈퇴했던 유저 복구
         if not user.is_active:
-            user.is_active = True
-        user.email = email
+            restored_name = user.user_name
+            new_user = User(
+                provider="apple",
+                provider_id=provider_id,
+                user_name=restored_name,
+                email=email
+            )
+            db.add(new_user)
+            user = new_user
+        else:
+            user.email = email
+
     db.commit()
     db.refresh(user)
 
@@ -165,6 +182,8 @@ async def logout_user(
     return PostResponse(
         message = "Success",
     )
+
+
 @router.post("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def leave_user(
     user_id: int = Depends(auth_check),
