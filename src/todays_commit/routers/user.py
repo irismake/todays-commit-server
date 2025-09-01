@@ -22,6 +22,8 @@ router = APIRouter(
 )
 
 KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
+KAKAO_DISCONNECT_URL = "https://kapi.kakao.com/v1/user/unlink"
+KAKAO_ADMIN_KEY = os.getenv("KAKAO_ADMIN_KEY")
 
 APPLE_CLIENT_ID = os.getenv("APPLE_CLIENT_ID")
 APPLE_AUTH_KEY_URL = "https://appleid.apple.com/auth/keys"
@@ -163,13 +165,33 @@ async def logout_user(
     return PostResponse(
         message = "Success",
     )
-
-@router.get("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
+@router.post("/leave", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def leave_user(
     user_id: int = Depends(auth_check),
     db: Session = Depends(get_db)
 ):
     user: User = User.find_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다.")
+
+    if not user.provider_id:
+        raise HTTPException(status_code=400, detail="provider_id가 없습니다.")
+
+    if user.provider == "kakao":
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            "Authorization": f"KakaoAK {KAKAO_ADMIN_KEY}"
+        }
+        data = {
+            "target_id_type": "user_id",
+            "target_id": user.provider_id
+        }
+
+        async with httpx.AsyncClient() as client:
+            res = await client.post(KAKAO_DISCONNECT_URL, headers=headers, data=data)
+
+        if res.status_code != 200:
+            raise HTTPException(status_code=res.status_code, detail=f"카카오 unlink 실패: {res.text}")
     user.is_active = False
     db.commit()
     
