@@ -1,7 +1,6 @@
 from todays_commit.models.base import TodaysCommitBase
 from sqlalchemy.orm import Session
-
-from sqlalchemy import Column, SmallInteger, String, DateTime, Index, Boolean
+from sqlalchemy import Column, SmallInteger, String, DateTime, Boolean
 from datetime import datetime
 
 class User(TodaysCommitBase):
@@ -15,9 +14,7 @@ class User(TodaysCommitBase):
     created_at = Column(DateTime, default=datetime.now)
     is_active = Column(Boolean, default=True)
 
-    __table_args__ = (
-        Index("uq_user_provider_id", "provider", "provider_id", unique=True),
-    )
+    __table_args__ = ()
 
     @classmethod
     def find_by_id(cls, db: Session, id: int):
