@@ -57,18 +57,22 @@ async def check_place(
     pnu: int = Query(...),
     db: Session = Depends(get_db)
 ):
-     # 1. unit 테이블에서 pnu 존재 여부 확인
-    unit_exists = db.query(Unit).filter(Unit.unit_code == pnu).first() is not None
-
-    # unit 없으면 바로 exists=False 리턴
-    if not unit_exists:
-        return PlaceCheck(exists=False, name=None)
-
-    # 2. place 테이블에서 pnu 존재 여부 + name 조회
+    unit = db.query(Unit).filter(Unit.unit_code == pnu).first()
     place = db.query(Place).filter(Place.pnu == pnu).first()
-    place_name = place.name if place else None
 
-    return PlaceCheck(exists=True, name=place_name)
+    if unit:  
+        return PlaceCheck(
+            exists=True,
+            name=place.name if place else None
+        )
+
+    if place:
+        return PlaceCheck(
+            exists=False,
+            name=place.name
+        )
+
+    return PlaceCheck(exists=False, name=None)
 
 
 @router.get("/main", response_model=PlaceResponse)
