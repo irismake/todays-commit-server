@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <title>Today's Commit - Map</title>
+    <style>
+        html,
+        body,
+        #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ KAKAO_JS_KEY }}"></script>
+    <script>
+        const lat = {{ lat }};
+        const lon = {{ lon }};
+        const zoom = {{ zoom }};
+
+        const container = document.getElementById('map');
+        const options = {
+            center: new kakao.maps.LatLng(lat, lon),
+            level: zoom
+        };
+        const map = new kakao.maps.Map(container, options);
+
+        map.setDraggable(false);
+        map.setZoomable(false);
+
+        const markerImage = new kakao.maps.MarkerImage(
+            "https://todayscommit.com/static/center.svg",
+            new kakao.maps.Size(60, 60),
+            { offset: new kakao.maps.Point(30, 60) }
+        );
+
+        const markerPosition = new kakao.maps.LatLng(lat, lon);
+        const marker = new kakao.maps.Marker({
+            position: markerPosition,
+            image: markerImage
+        });
+        marker.setMap(map);
+
+        window.addEventListener('resize', () => {
+            map.relayout();
+            map.setCenter(new kakao.maps.LatLng(lat, lon));
+        });
+    </script>
+</body>
+
+</html>

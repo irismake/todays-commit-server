@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, or_, and_
 from typing import Optional
@@ -6,6 +6,9 @@ from enum import Enum
 from datetime import datetime
 import base64
 import json
+import os
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 from todays_commit.database import get_db
 from todays_commit.models import Place, Grass, Commit, User, Unit
@@ -22,6 +25,14 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+KAKAO_JAVASCRIPT_KEY = os.getenv("KAKAO_JAVASCRIPT_KEY")
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "..", "database", "template")
+
+templates = Jinja2Templates(directory=DATA_DIR)
+
 class SortOption(str, Enum):
     recent = "recent"
     popular = "popular"
@@ -32,6 +43,28 @@ def encode_cursor(data: dict) -> str:
 def decode_cursor(cursor: str) -> dict:
     return json.loads(base64.urlsafe_b64decode(cursor.encode()).decode())
 
+
+@router.get("/map", response_class=HTMLResponse)
+async def get_place_map(
+    request: Request,
+    lat: float = Query(..., description="위도"),
+    lon: float = Query(..., description="경도"),
+    zoom: int = Query(1, ge=1, le=20, description="줌 레벨"),
+):
+
+    if not KAKAO_JAVASCRIPT_KEY:
+        raise HTTPException(status_code=500, detail="카카오 API 키가 설정되지 않았습니다.")
+
+    return templates.TemplateResponse(
+        "map.html",
+        {
+            "request": request,
+            "lat": lat,
+            "lon": lon,
+            "zoom": zoom,
+            "KAKAO_JS_KEY": KAKAO_JAVASCRIPT_KEY,
+        },
+    )
 
 @router.post("", response_model=PostResponse, dependencies=[Depends(auth_check)])
 async def add_place(
