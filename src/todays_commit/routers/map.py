@@ -6,7 +6,7 @@ from sqlalchemy import cast, String, func
 from todays_commit.database import get_db
 from todays_commit.models import Map, Cell, Unit
 
-from todays_commit.schemas.map import MapResponse, CellResponse, CellData,CellBase
+from todays_commit.schemas.map import MapResponse, CellResponse, CellData
 
 router = APIRouter(
     prefix="/map",

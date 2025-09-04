@@ -4,10 +4,10 @@ from sqlalchemy import func
 from datetime import datetime, UTC
 
 from todays_commit.database import get_db
-from todays_commit.models import Grass, Commit, Unit, Place
+from todays_commit.models import Grass, Commit, Unit, Place, Cell
 from todays_commit.schemas.oauth import auth_check
 from todays_commit.schemas.grass import GrassResponse, GrassData
-from todays_commit.schemas.base import PostResponse
+from todays_commit.schemas.map import CellBase
 
 router = APIRouter(
     prefix="/grass",
@@ -16,7 +16,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/{pnu}", response_model=PostResponse, dependencies=[Depends(auth_check)])
+@router.post("/{pnu}", response_model=list[CellBase], dependencies=[Depends(auth_check)])
 async def add_grass(
     pnu: int,
     user_id: int = Depends(auth_check),
@@ -49,19 +49,35 @@ async def add_grass(
 
     units_to_add = [u for u in [unit_19, unit_8, unit_5] if u is not None]
 
+    responses = []
     for u in units_to_add:
-        grass = Grass(
+        db.add(Grass(
             map_id=u.map_id,
             coord_id=u.coord_id,
             commit_id=commit.commit_id
+        ))
+
+        cell = db.query(Cell).filter(
+            Cell.map_id == u.map_id,
+            Cell.coord_id == u.coord_id
+        ).first()
+
+        if not cell:
+            raise HTTPException(
+                status_code=500,
+                detail=f"cell 누락: map_id={u.map_id}, coord_id={u.coord_id}"
+            )
+
+        responses.append(
+            CellBase(
+                coord_id=u.coord_id,
+                map_id=u.map_id,
+                zone_code=cell.zone_code
+            )
         )
-        db.add(grass)
 
     db.commit()
-
-    return PostResponse(
-        message = "Success",
-    )
+    return responses
 
 @router.get("", response_model=GrassResponse)
 async def get_grass(map_id: int = Query(...), db: Session = Depends(get_db)):
