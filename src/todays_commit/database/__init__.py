@@ -42,8 +42,8 @@ def insert_map(db):
             {"map_id": 16, "map_level": 1, "map_code": 50},
             {"map_id": 17, "map_level": 1, "map_code": 44},
             {"map_id": 18, "map_level": 1, "map_code": 43},
-            {"map_id": 19, "map_level": 0, "map_code": 11305},
-            {"map_id": 20, "map_level": 0, "map_code": 11290},
+            # {"map_id": 19, "map_level": 0, "map_code": 11305},
+            # {"map_id": 20, "map_level": 0, "map_code": 11290},
         ]
         for m in maps:
             db.add(Map(**m))
