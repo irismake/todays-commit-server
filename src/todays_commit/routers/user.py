@@ -62,7 +62,12 @@ async def login_with_kakao(
     nickname = user_data.get("properties", {}).get("nickname")
     email = user_data.get("kakao_account", {}).get("email")
 
-    user = db.query(User).filter_by(provider_id=kakao_id).first()
+    user = (
+        db.query(User)
+        .filter_by(provider="kakao", provider_id=kakao_id)
+        .order_by(User.created_at.desc())
+        .first()
+    )
     is_first_login = False
 
     if not user:
@@ -113,9 +118,15 @@ async def login_with_apple(
     
     provider_id = decoded["sub"]
     email = decoded.get("email", "")
+    
+    user = (
+        db.query(User)
+        .filter_by(provider="apple", provider_id=provider_id)
+        .order_by(User.created_at.desc())
+        .first()
+    )
     is_first_login = False
 
-    user = db.query(User).filter_by(provider="apple", provider_id=provider_id).first()
     if not user:
         if not user_name or not user_name.strip():
             raise HTTPException(status_code=400, detail="최초 로그인 시 user_name 필요")
