@@ -63,9 +63,12 @@ async def login_with_kakao(
     email = user_data.get("kakao_account", {}).get("email")
 
     user = db.query(User).filter_by(provider_id=kakao_id).first()
+    is_first_login = False
+
     if not user:
         user = User(provider="kakao", provider_id=kakao_id, user_name=nickname, email=email)
         db.add(user)
+        is_first_login = True
     else:
         if not user.is_active:
             restored_name = user.user_name
@@ -77,6 +80,7 @@ async def login_with_kakao(
             )
             db.add(new_user)
             user = new_user
+            is_first_login = True
         else:
             user.user_name = nickname
             user.email = email
@@ -85,18 +89,15 @@ async def login_with_kakao(
     db.refresh(user)
 
     access_token = AuthHandler().create_access_token(user.user_id)
-    token_model = Token.create_or_update_refresh_token(db, user.user_id)
+    _ = Token.create_or_update_refresh_token(db, user.user_id)
 
     return UserResponse(
-        access_token=access_token,
-        refresh_token=token_model.refresh_token,
-        refresh_token_expires_at=token_model.expires_at.isoformat(),
-        user_id=user.user_id,
         user_name=user.user_name,
         email=user.email,
         provider=user.provider,
-        provider_id=user.provider_id,
-        created_at=user.created_at.isoformat()
+        created_at=user.created_at.isoformat(),
+        access_token=access_token,
+        is_first_login=is_first_login
     )
 
 @router.get("/login/apple", response_model=UserResponse)
@@ -112,6 +113,7 @@ async def login_with_apple(
     
     provider_id = decoded["sub"]
     email = decoded.get("email", "")
+    is_first_login = False
 
     user = db.query(User).filter_by(provider="apple", provider_id=provider_id).first()
     if not user:
@@ -119,6 +121,7 @@ async def login_with_apple(
             raise HTTPException(status_code=400, detail="최초 로그인 시 user_name 필요")
         user = User(provider="apple", provider_id=provider_id, user_name=user_name, email=email)
         db.add(user)
+        is_first_login = True
     else:
         if not user.is_active:
             restored_name = user.user_name
@@ -130,6 +133,7 @@ async def login_with_apple(
             )
             db.add(new_user)
             user = new_user
+            is_first_login = True
         else:
             user.email = email
 
@@ -137,18 +141,15 @@ async def login_with_apple(
     db.refresh(user)
 
     access_token = AuthHandler().create_access_token(user.user_id)
-    token_model = Token.create_or_update_refresh_token(db, user.user_id)
+    _ = Token.create_or_update_refresh_token(db, user.user_id)
 
     return UserResponse(
-        access_token=access_token,
-        refresh_token=token_model.refresh_token,
-        refresh_token_expires_at=token_model.expires_at.isoformat(),
-        user_id=user.user_id,
         user_name=user.user_name,
         email=user.email,
         provider=user.provider,
-        provider_id=user.provider_id,
-        created_at=user.created_at.isoformat()
+        created_at=user.created_at.isoformat(),
+        access_token=access_token,
+        is_first_login=is_first_login
     )
 
 @router.get("/info", response_model=UserData, dependencies=[Depends(auth_check)])

@@ -16,7 +16,10 @@ class UserData(BaseModel):
     user_name: str
     provider: str
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
+    user_name: str
+    email: Optional[str] = None
+    provider: str
+    created_at: datetime
     access_token: str
-    refresh_token: str
-    refresh_token_expires_at: str
+    is_first_login: bool
