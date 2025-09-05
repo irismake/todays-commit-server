@@ -45,18 +45,20 @@ app.include_router(location.router)
 app.include_router(commit.router)
 
 # 홈 라우트
+# @app.get("/")
+# async def home():
+#     html = (
+#         '<a href="/docs">API 문서</a><br>'
+#     )
+#     return HTMLResponse(html)
+
 @app.get("/")
 async def home():
-    html = (
-        '<a href="/docs">API 문서</a><br>'
-    )
-    return HTMLResponse(html)
+    return {"message": "Welcome"}
 
-@app.get("/test")
-async def test_db():
-    inspector = inspect(engine)
-    tables = inspector.get_table_names()
-    return {"tables": tables}
+# @app.get("/test")
+# async def test_db():
+#     return {"message": "test"}
 
 # 개발용 실행 진입점
 if __name__ == "__main__":
