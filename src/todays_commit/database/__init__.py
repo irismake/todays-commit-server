@@ -149,7 +149,7 @@ def insert_csv(db):
 
 def initialize_db():
     db = SessionLocal()
-    reset_table(db)
+    # reset_table(db)
     try:
         if not db.query(Coord).first():
             print("🚀 insert_coord 실행", flush=True)
