@@ -24,13 +24,15 @@ KAKAO_SEARCH_URL = "https://dapi.kakao.com/v2/local/search/keyword.json"
 
 
 def make_pnu_code(legal_dong_code: str, bunji: str) -> str:
+    is_san = "산" in bunji
+    # 숫자와 '-'만 남기기
     clean_bunji = re.sub(r"[^0-9\-]", "", bunji)
     parts = clean_bunji.split("-")
+    # 본번 / 부번
     main_bun = parts[0].zfill(4) if len(parts) > 0 and parts[0] else "0000"
-    sub_bun = parts[1].zfill(4) if len(parts) > 1 and parts[1] else "0000"
-
-    return legal_dong_code + "1" + main_bun + sub_bun
-
+    sub_bun  = parts[1].zfill(4) if len(parts) > 1 and parts[1] else "0000"
+    san_code = "2" if is_san else "1"
+    return legal_dong_code + san_code + main_bun + sub_bun
 
 @router.get("", response_model=LocationResponse)
 async def get_pnu(

@@ -42,8 +42,31 @@ def insert_map(db):
             {"map_id": 16, "map_level": 1, "map_code": 50},
             {"map_id": 17, "map_level": 1, "map_code": 44},
             {"map_id": 18, "map_level": 1, "map_code": 43},
-            # {"map_id": 19, "map_level": 0, "map_code": 11305},
-            # {"map_id": 20, "map_level": 0, "map_code": 11290},
+            {"map_id": 19, "map_level": 0, "map_code": 11110},
+            {"map_id": 20, "map_level": 0, "map_code": 11140},
+            {"map_id": 21, "map_level": 0, "map_code": 11170},
+            {"map_id": 22, "map_level": 0, "map_code": 11200},
+            {"map_id": 23, "map_level": 0, "map_code": 11215},
+            {"map_id": 24, "map_level": 0, "map_code": 11230},
+            {"map_id": 25, "map_level": 0, "map_code": 11260},
+            {"map_id": 26, "map_level": 0, "map_code": 11290},
+            {"map_id": 27, "map_level": 0, "map_code": 11305},
+            {"map_id": 28, "map_level": 0, "map_code": 11320},
+            {"map_id": 29, "map_level": 0, "map_code": 11350},
+            {"map_id": 30, "map_level": 0, "map_code": 11380},
+            {"map_id": 31, "map_level": 0, "map_code": 11410},
+            {"map_id": 32, "map_level": 0, "map_code": 11440},
+            {"map_id": 33, "map_level": 0, "map_code": 11470},
+            {"map_id": 34, "map_level": 0, "map_code": 11500},
+            {"map_id": 35, "map_level": 0, "map_code": 11530},
+            {"map_id": 36, "map_level": 0, "map_code": 11545},
+            {"map_id": 37, "map_level": 0, "map_code": 11560},
+            {"map_id": 38, "map_level": 0, "map_code": 11590},
+            {"map_id": 39, "map_level": 0, "map_code": 11620},
+            {"map_id": 40, "map_level": 0, "map_code": 11650},
+            {"map_id": 41, "map_level": 0, "map_code": 11680},
+            {"map_id": 42, "map_level": 0, "map_code": 11710},
+            {"map_id": 43, "map_level": 0, "map_code": 11740},
         ]
         for m in maps:
             db.add(Map(**m))
@@ -126,7 +149,7 @@ def insert_csv(db):
 
 def initialize_db():
     db = SessionLocal()
-    #reset_table(db)
+    # reset_table(db)
     try:
         if not db.query(Coord).first():
             print("🚀 insert_coord 실행", flush=True)
