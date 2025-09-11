@@ -23,7 +23,11 @@ KAKAO_REST_API_KEY = os.getenv("KAKAO_REST_API_KEY")
 KAKAO_SEARCH_URL = "https://dapi.kakao.com/v2/local/search/keyword.json"
 
 
-def make_pnu_code(legal_dong_code: str, bunji: str) -> str:
+def make_pnu_code(legal_dong_code: str, bunji: str, ri: str) -> str:
+    if ri == "독도리" and len(legal_dong_code) >= 5:
+        # 다섯 번째 자리만 '1'로 바꾸기
+        legal_dong_code = legal_dong_code[:4] + "1" + legal_dong_code[5:]
+    
     is_san = "산" in bunji
     # 숫자와 '-'만 남기기
     clean_bunji = re.sub(r"[^0-9\-]", "", bunji)
@@ -60,9 +64,8 @@ async def get_pnu(
     address_info = res_data.get("addressInfo")
     if not address_info:
         raise HTTPException(status_code=404, detail="좌표에 해당하는 행정구역이 없습니다.")
-    # fullAddress = address_info("fullAddress")
-    # ri = address_info("ri")
-    pnu = make_pnu_code(address_info.get("legalDongCode"), address_info.get("bunji"))
+
+    pnu = make_pnu_code(address_info.get("legalDongCode"), address_info.get("bunji"), address_info.get("ri"))
     address = address_info.get("fullAddress")
     return LocationResponse(
         lat=lat,
