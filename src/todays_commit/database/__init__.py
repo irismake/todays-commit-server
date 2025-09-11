@@ -68,39 +68,39 @@ def insert_map(db):
             {"map_id": 42, "map_level": 0, "map_code": 11710},
             {"map_id": 43, "map_level": 0, "map_code": 11740},
         ]
+        new_maps = []
         for m in maps:
-            db.add(Map(**m))
+            exists = db.query(Map).filter_by(map_id=m["map_id"]).first()
+            if not exists:
+                db.add(Map(**m))
+                new_maps.append(m)
         db.commit()
-        print("✅ map 데이터 삽입 완료", flush=True)
+        print(f"✅ map 데이터 삽입 완료 (신규 {len(new_maps)}개)", flush=True)
+        return new_maps
 
     except Exception as e:
         db.rollback()
         print("❌ map 삽입 실패:", e, flush=True)
+        return []
 
 
-def insert_csv(db):
+def insert_csv(db, new_maps):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DATA_DIR = os.path.join(BASE_DIR, "data")
-    csv_files = glob.glob(os.path.join(DATA_DIR, "*.csv"))
 
     try:
-        for csv_path in sorted(csv_files):
-            filename = os.path.basename(csv_path)
-            map_code = int(os.path.splitext(filename)[0])
+        for m in new_maps:
+            filename = f"{m['map_code']}.csv"
+            csv_path = os.path.join(DATA_DIR, filename)
+            if not os.path.exists(csv_path):
+                raise FileNotFoundError(f"❌ CSV 파일 없음: {filename} (map_id={m['map_id']})")
 
-            map_row = db.query(Map).filter_by(map_code=map_code).first()
-            if not map_row:
-                raise ValueError(f"⚠️ map_code {map_code}에 해당하는 map이 DB에 존재하지 않습니다.")
-            map_id = map_row.map_id
+            print(f"🚀 CSV 처리 시작: {filename}")
             inserted_cells = 0
             inserted_units = 0
-
             with open(csv_path, newline='', encoding='utf-8') as csvfile:
                 reader = csv.reader(csvfile)
                 headers = next(reader, None)
-                
-                print(f"📌 파일: {filename}, 헤더: {headers}")
-
                 if headers != ["y", "x", "zone_code", "pnus"]:
                     raise ValueError(f"❌ 잘못된 헤더입니다. 파일: {filename}, 헤더: {headers}")
 
@@ -117,33 +117,29 @@ def insert_csv(db):
                         if not coord:
                             raise ValueError(f"⚠️ coord({x},{y}) 없음 (파일: {filename}, 줄: {line_no})")
 
-                        exists = db.query(Cell).filter_by(coord_id=coord.coord_id, map_id=map_id).first()
+                        exists = db.query(Cell).filter_by(coord_id=coord.coord_id, map_id=m["map_id"]).first()
                         if exists:
-                            raise ValueError(f"⚠️ 중복 Cell 존재: coord_id={coord.coord_id}, map_id={map_id} (파일: {filename}, 줄: {line_no})")
+                            raise ValueError(f"⚠️ 중복 Cell 존재: coord_id={coord.coord_id}, map_id={m['map_id']} (파일: {filename}, 줄: {line_no})")
 
-                        db.add(Cell(coord_id=coord.coord_id, map_id=map_id, zone_code=zone_code))
+                        db.add(Cell(coord_id=coord.coord_id, map_id=m["map_id"], zone_code=zone_code))
                         inserted_cells += 1
 
                         if pnus_raw:
-                            try:
-                                pnus = ast.literal_eval(pnus_raw)
-                                if not isinstance(pnus, list):
-                                    raise ValueError("⚠️ pnus가 리스트가 아닙니다")
-                                for unit_code in pnus:
-                                    db.add(Unit(coord_id=coord.coord_id, map_id=map_id, unit_code=unit_code))
-                                    inserted_units += 1
-                            except Exception as pe:
-                                raise ValueError(f"⚠️ pnus 파싱 오류 (파일: {filename}, 줄: {line_no}, 값: {pnus_raw}) → {pe}")
+                            pnus = ast.literal_eval(pnus_raw)
+                            if not isinstance(pnus, list):
+                                raise ValueError("⚠️ pnus가 리스트가 아닙니다")
+                            for unit_code in pnus:
+                                db.add(Unit(coord_id=coord.coord_id, map_id=m["map_id"], unit_code=unit_code))
+                                inserted_units += 1
 
                     except Exception as row_error:
                         raise ValueError(f"⚠️ row 처리 중 에러 (파일: {filename}, 줄: {line_no}) → {row_error}")
-
             db.commit()
             print(f"✅ {filename} → cell {inserted_cells}개, unit {inserted_units}개 삽입 완료", flush=True)
 
     except Exception as e:
         db.rollback()
-        print(f"❌ 처리 중 오류 발생: {e}", flush=True)
+        print(f"❌ CSV 처리 중 오류 발생: {e}", flush=True)
         raise
 
 
@@ -156,16 +152,16 @@ def initialize_db():
             insert_coord(db)
         else:
             print("✅ Coord 데이터 있음", flush=True)
-        if not db.query(Map).first():
-            print("🚀 insert_map 실행", flush=True)
-            insert_map(db)
-        else:
-            print("✅ Map 데이터 있음", flush=True)
-        if not db.query(Cell).first() or not db.query(Unit).first():
+
+        print("🚀 insert_map 실행", flush=True)
+        new_maps = insert_map(db)
+
+        if new_maps:
             print("🚀 insert_csv 실행", flush=True)
-            insert_csv(db)
+            insert_csv(db, new_maps)
         else:
-            print("✅ Cell & Unit 데이터 있음",  flush=True)
+            print("✅ 추가된 Map 없음 → CSV 작업 스킵", flush=True)
+
     finally:
         db.close()
 
