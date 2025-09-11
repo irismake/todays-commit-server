@@ -23,10 +23,10 @@ KAKAO_REST_API_KEY = os.getenv("KAKAO_REST_API_KEY")
 KAKAO_SEARCH_URL = "https://dapi.kakao.com/v2/local/search/keyword.json"
 
 
-def make_pnu_code(legal_dong_code: str, bunji: str, ri: str ) -> str:
-    if ri == "독도리" and len(legal_dong_code) >= 7:
-        # 문자열 슬라이싱: 앞 6자리 + '6' + 나머지
-        legal_dong_code = legal_dong_code[:6] + "6" + legal_dong_code[7:]
+def make_pnu_code(legal_dong_code: str, bunji: str, ri: str) -> str:
+    if ri == "독도리" and len(legal_dong_code) >= 5:
+        # 다섯 번째 자리만 '1'로 바꾸기
+        legal_dong_code = legal_dong_code[:4] + "1" + legal_dong_code[5:]
     
     is_san = "산" in bunji
     # 숫자와 '-'만 남기기
