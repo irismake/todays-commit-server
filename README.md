@@ -50,14 +50,20 @@ make dc-up         # docker compose up --build -d
 make db-access     # 컨테이너 내부 postgres 접속(psql)
 ```
 
-### **Run (Local)**
+### **Run (수동)**
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# 컨테이너 초기화
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -q)
+docker system prune
+
+# 도커 빌드
+docker compose build
+# 도커 실행
+docker compose up
+# (옵션) 백그라운드에서 실행
+docker compose up -d
 ```
 * 중지/정리는 아래 Makefile Commands 참고
 
@@ -84,7 +90,7 @@ make db-schema-update  # alembic revision --autogenerate -m "schema-update"
 ```
 &nbsp;
 
-## **Migration**
+## **Migration(수동 실행 예시)**
 
 ### **Create & Apply**
 ```bash
@@ -154,22 +160,13 @@ docker compose exec web alembic downgrade -1
 
 <br>
 
-## **Migration Guidelines**
 
-### **Alembic file naming (recommended):**
-```
-[YYYYMMDD_HHMMSS]_[short_description].py
-```
-> 예: `20250928_143210_add_commit_index.py`
+## **Health Check**
 
-- 스키마 변경 전후로 로컬/테스트에서 `alembic upgrade head` 검증 필수  
-- 인덱스/제약 조건 변경은 영향 범위(읽기/쓰기 경로)를 PR 본문에 명시
+- **/health** 엔드포인트: DB 연결 체크 후 200 반환
 
 <br>
 
-## **Health & Observability (Optional)**
+## **API specification**
 
-- **/health** 엔드포인트: DB 연결 체크 후 200 반환
-- 로깅: 구조적 로그(JSON) 권장, `uvicorn` 로그 레벨 환경변수로 제어  
-- (옵션) Sentry / Prometheus / Grafana 연동 가능
-
+[API Docs](https://wide-humor-7da.notion.site/API-21c4678d106480a69a57d4d9a6262a71)
