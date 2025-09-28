@@ -16,20 +16,38 @@ cd todays-commit-server
 ### **Environment**
 ```bash
 cp .env.example .env
+
 # .env 파일에 데이터베이스/토큰/도메인 정보 설정
-# POSTGRES_USER=...
-# POSTGRES_PASSWORD=...
-# POSTGRES_DB=...
-# DATABASE_URL=postgresql+psycopg2://USER:PASSWORD@db:5432/DBNAME
-# JWT_SECRET=...
-# APP_ENV=local|dev|prod
+DB_USER=...
+DB_PASSWORD=...
+DB_HOST=...
+DB_PORT=...
+DB_NAME=...
+
+# kakao
+KAKAO_ADMIN_KEY=...
+KAKAO_REST_API_KEY=...
+KAKAO_JAVASCRIPT_KEY=...
+
+# apple
+APPLE_TEAM_ID=...
+APPLE_CLIENT_ID=...
+APPLE_KEY_ID=...
+APPLE_REDIRECT_URI=...
+APPLE_PRIVATE_KEY_FILE=...
+
+# sk
+SK_APP_KEY=...
+
+# token
+SECRET_KEY=...
+TOKEN_ALGORITHM=...
 ```
 
 ### **Run (Docker)**
 ```bash
-docker compose up -d --build
-# API: http://localhost:8000
-# Docs: http://localhost:8000/docs
+make dc-up         # docker compose up --build -d
+make db-access     # 컨테이너 내부 postgres 접속(psql)
 ```
 
 ### **Run (Local)**
@@ -41,27 +59,43 @@ pip install -r requirements.txt
 alembic upgrade head
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+* 중지/정리는 아래 Makefile Commands 참고
 
 <br>
 
-## **Migration**
-
-### **Create & Apply (Alembic)**
+## **Makefile Commands**
+### **Docker Compose 환경 제어**
 ```bash
-# 변경사항 생성 (자동 감지)
-alembic revision --autogenerate -m "feat: add commit indices"
-
-# 업그레이드
-alembic upgrade head
-
-# 특정 버전으로 다운그레이드
-alembic downgrade -1
+make dc-up         # docker compose -f docker-compose.yml up --build -d
+make dc-down       # docker compose -f docker-compose.yml down
+make dc-down-v2    # docker compose -f docker-compose.yml down --rmi all   (이미지까지 정리)
+```
+### **데이터베이스 제어**
+```bash
+make db-access     # docker compose exec postgres psql -U postgres -d todays_commit
+make db-create     # TodaysCommit DB 생성
+make db-recreate   # 웹 일시 중지 → DB 드롭/재생성 → 웹 재시작
 ```
 
-### **Seed / Admin (옵션)**
+### **Alembic 마이그레이션**
 ```bash
-python scripts/seed.py        # 초기 데이터 삽입
-python scripts/create_admin.py # 관리자/테스트 계정 생성
+make db-update         # alembic upgrade head
+make db-schema-update  # alembic revision --autogenerate -m "schema-update"
+```
+
+
+## **Migration**
+
+### **Create & Apply**
+```bash
+docker compose exec web alembic revision --autogenerate -m "feat: add indices"
+docker compose exec web alembic upgrade head
+```
+
+
+### **Downgrade**
+```bash
+docker compose exec web alembic downgrade -1
 ```
 
 <br>
@@ -96,10 +130,11 @@ python scripts/create_admin.py # 관리자/테스트 계정 생성
 
 We use the **Git Flow** branching model:
 
-- `main`: Contains the latest production-ready code. Updated only when the application is ready for deployment or an app update is scheduled.
-- `dev`: Integration branch for ongoing development. All features/bugfixes merge here first.
-- `feature/feature-name`: Feature branches created from `dev`. When completed, merge back into `dev`.
-- **Deployment process**: Admin merges `dev` into `main` when the application is ready for production deployment/updates.
+main : 배포용 안정 브랜치
+
+dev : 개발 통합 브랜치
+
+feature/* : 기능 단위 브랜치 (완료 시 dev로 머지)
 
 <br>
 
@@ -138,7 +173,7 @@ We use the **Git Flow** branching model:
 
 ## **Health & Observability (Optional)**
 
-- **/health** 엔드포인트: DB 연결 체크 후 200 반환  
+- **/health** 엔드포인트: DB 연결 체크 후 200 반환
 - 로깅: 구조적 로그(JSON) 권장, `uvicorn` 로그 레벨 환경변수로 제어  
 - (옵션) Sentry / Prometheus / Grafana 연동 가능
 
