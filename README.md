@@ -1,7 +1,7 @@
 # **todays-commit-server**
 
 이 저장소는 FastAPI와 PostgreSQL로 구축하고 Docker Compose로 컨테이너화한 오늘의 커밋 (Today’s Commit) 백엔드를 포함합니다.
-장소/커밋 데이터용 REST API, JWT 기반 인증(상위 레이어의 Apple/Kakao 소셜 로그인 연동), PNU/zone-code 매핑 서비스를 제공하며, 경량 배포 환경(예: Raspberry Pi + Nginx + Let’s Encrypt)에 최적화되어 있습니다.
+장소/커밋 데이터용 REST API, JWT 기반 인증(상위 레이어의 Apple/Kakao 소셜 로그인 연동), 경량 배포 환경(예: Raspberry Pi + Nginx + Let’s Encrypt)에 최적화되어 있습니다.
 
 <br>
 
@@ -109,25 +109,24 @@ docker compose exec web alembic downgrade -1
 ## **File Structure**
 ```bash
 .
-├── app
-│   ├── api                  # 라우터 (place, commit, auth 등)
-│   ├── core                 # 설정, 보안(JWT), 의존성
-│   ├── db                   # 세션/엔진, 초기화
-│   ├── models               # SQLAlchemy 모델 (Place, Commit, Grass, User 등)
-│   ├── schemas              # Pydantic 스키마
-│   ├── services             # 비즈니스 로직 (PNU/zone 매핑, 거리 계산 등)
-│   └── main.py              # FastAPI 엔트리포인트
 ├── alembic
-│   ├── versions             # 마이그레이션 파일들
-│   └── env.py
-├── scripts                  # seed, admin 생성 등 유틸 스크립트
-├── docker
-│   ├── nginx.conf           # (옵션) 리버스 프록시 설정
-│   └── Dockerfile           # API Dockerfile
+│   └── migrations                
+│       ├── versions/             # 마이그레이션 파일들
+│       └── env.py                # 환경 변수 설정
+├── dockerfiles
+│   └── Dockerfile                # Dockerfile
+├── instance                      # csv 데이터
+├── src
+│   ├── todays_commit            
+│   │   ├── database/             # DB 연결 & 초기화
+│   │   ├── models/               # SQLAlchemy 모델 (Place, Commit, Grass, User 등)
+│   │   ├── routers/              # 라우터 (place, commit, auth 등)
+│   │   ├── schemas/              # Pydantic 스키마
+│   │   └── main.py               # 개발용 실행 진입
 ├── docker-compose.yml
-├── requirements.txt
+├── requirements.txt              # 필요한 패키지 의존성
 ├── .env.example
-└── README.md
+└── Makefile
 ```
 
 <br>
@@ -145,8 +144,6 @@ docker compose exec web alembic downgrade -1
 ### **Commit format:**
 ```
 [TYPE] : [Short description]
-
-[Body] : [Notion Link and Task ID]
 ```
 
 ### **Types:**
