@@ -82,7 +82,7 @@ make db-recreate   # 웹 일시 중지 → DB 드롭/재생성 → 웹 재시작
 make db-update         # alembic upgrade head
 make db-schema-update  # alembic revision --autogenerate -m "schema-update"
 ```
-
+&nbsp;
 
 ## **Migration**
 
@@ -128,13 +128,9 @@ docker compose exec web alembic downgrade -1
 
 ## **Branching Strategy**
 
-We use the **Git Flow** branching model:
+- `main` : 주요 개발 브랜치 
+- `feature/*` : 기능 단위 브랜치  
 
-main : 배포용 안정 브랜치
-
-dev : 개발 통합 브랜치
-
-feature/* : 기능 단위 브랜치 (완료 시 dev로 머지)
 
 <br>
 
